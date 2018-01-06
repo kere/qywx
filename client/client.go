@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/kere/gno/libs/log"
 	"github.com/kere/gno/libs/util"
 )
 
@@ -54,6 +55,7 @@ func get(uri string) ([]byte, error) {
 		return nil, err
 	}
 
+	log.App.Debug(uri)
 	defer resq.Body.Close()
 	return ioutil.ReadAll(resq.Body)
 }
@@ -68,6 +70,7 @@ func post(uri string, dat util.MapData) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.App.Debug(uri, dat)
 
 	defer resq.Body.Close()
 	return ioutil.ReadAll(resq.Body)

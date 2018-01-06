@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/oauth"
+	"github.com/kere/qywx/users"
 )
 
 const (
@@ -18,10 +18,12 @@ const (
 
 // UserInfo class
 type UserInfo struct {
-	IsOpenUser            bool
-	ID, DevicedID, Ticket string
-	TicketExpires         int
-	TicketExpiresAt       time.Time
+	IsOpenUser      bool   `json:"is_openuser"`
+	ID              string `json:"userid"`
+	DevicedID       string `json:"deviced_id"`
+	Ticket          string `json:"ticket"`
+	TicketExpires   int    `json:"expires"`
+	TicketExpiresAt time.Time
 }
 
 // SetTicketExpires build expires
@@ -30,41 +32,30 @@ func (u *UserInfo) SetTicketExpires(n int) {
 	u.TicketExpiresAt = time.Now().Add(time.Duration(n) * time.Second)
 }
 
-// UserDetail class
-type UserDetail struct {
-	ID         string `json:"userid"`
-	Name       string `json:"name"`
-	Department []int  `json:"depat"`
-	Position   string `json:"position"` // 职位
-	Mobile     string
-	Gender     int `json:"gender"` // 性别
-	Email      string
-	Avatar     string `json:"avatar"`
-}
-
-func FetchUser(agentName, code string) (userInfo *oauth.UserInfo, userDetail *oauth.UserDetail, err error) {
+// FetchUser get userInfo & userDetail
+func FetchUser(agentID, code, token, scope string) (userInfo UserInfo, userDetail users.UserDetail, err error) {
 	if code == "" {
-		return nil, nil, errors.New("user code is empty")
+		return userInfo, userDetail, errors.New("user code is empty")
 	}
 
-	a := corp.Corp.GetAgent(agentName)
-	token, err := a.GetToken()
-	if err != nil {
-		return nil, nil, err
+	oa := NewOAuth(corp.Corp.ID, agentID)
+	if scope != "" {
+		oa.Scope = scope
 	}
-
-	oa := oauth.NewOAuth(corp.Corp.ID, a.ID)
 	oa.State = ""
 
-	userInfo, err = oa.GetUserInfo(token.Value, code)
+	userInfo, err = oa.GetUserInfo(token, code)
 	if err != nil {
-		return nil, nil, err
+		return userInfo, userDetail, err
 	}
 
 	if userInfo.IsOpenUser {
-		return userInfo, nil, nil
+		return userInfo, userDetail, errors.New("openuser")
 	}
 
-	userDetail, err = oa.GetUserDetail(token.Value, userInfo.Ticket)
+	if userInfo.Ticket != "" {
+		userDetail, err = oa.GetUserDetail(token, userInfo.Ticket)
+	}
+
 	return userInfo, userDetail, err
 }

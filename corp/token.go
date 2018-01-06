@@ -32,12 +32,13 @@ var tokenMap = make(map[string]*Token, 0)
 // GetToken get cached token
 func (a *Agent) GetToken() (*Token, error) {
 	now := time.Now()
+
 	key := a.Corp.ID + a.ID
 
 	a.tokenMutex.Lock()
 
 	t, isok := tokenMap[key]
-	if isok || now.Before(t.ExpiresAt) {
+	if isok && now.Before(t.ExpiresAt) {
 		a.tokenMutex.Unlock()
 		return t, nil
 	}

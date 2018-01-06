@@ -1,11 +1,14 @@
 package oauth
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
+	"github.com/kere/gno/libs/log"
 	"github.com/kere/gno/libs/util"
 	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/users"
 )
 
 // OAuth class
@@ -32,21 +35,35 @@ func (o *OAuth) OpenAndRedirect(rw http.ResponseWriter, req *http.Request, redir
 
 // GetUserInfo 根据code获取成员信息
 // 请求方式：GET（HTTPS）
-func (o *OAuth) GetUserInfo(accessToken, code string) (*UserInfo, error) {
+func (o *OAuth) GetUserInfo(accessToken, code string) (usr UserInfo, err error) {
 	url := fmt.Sprintf(userInfoURL, accessToken, code)
 	dat, err := client.GetMapData(url)
 	if err != nil {
-		return nil, err
+		return usr, err
 	}
+
+	log.App.Debug("userinfo", dat)
 
 	if dat.IsSet("OpenId") {
 		// 非企业用户
-		return &UserInfo{ID: dat.String("OpenId"), DevicedID: dat.String("DeviceId"), IsOpenUser: true}, nil
+		return UserInfo{
+			ID:         dat.String("OpenId"),
+			DevicedID:  dat.String("DeviceId"),
+			IsOpenUser: true}, nil
 	}
 
 	// 企业用户
-	usr := &UserInfo{ID: dat.String("UserId"), DevicedID: dat.String("DeviceId"), Ticket: dat.String("user_ticket")}
-	usr.SetTicketExpires(dat.Int("expires_in"))
+	usr = UserInfo{
+		ID:        dat.String("UserId"),
+		DevicedID: dat.String("DeviceId")}
+
+	if dat.IsSet("user_ticket") {
+		usr.Ticket = dat.String("user_ticket")
+	}
+
+	if dat.IsSet("expires_in") {
+		usr.SetTicketExpires(dat.Int("expires_in"))
+	}
 
 	return usr, nil
 }
@@ -54,13 +71,19 @@ func (o *OAuth) GetUserInfo(accessToken, code string) (*UserInfo, error) {
 // GetUserDetail 使用user_ticket获取成员详情
 // 请求方式：POST（HTTPS）
 // Post: "user_ticket": "USER_TICKET"
-func (o *OAuth) GetUserDetail(accessToken, ticket string) (*UserDetail, error) {
+func (o *OAuth) GetUserDetail(accessToken, ticket string) (usr users.UserDetail, err error) {
+	if ticket == "" {
+		return usr, errors.New("user ticket is empty")
+	}
+
 	url := fmt.Sprintf(userDetailURL, accessToken)
 	dat, err := client.PostMapData(url, util.MapData{"user_ticket": ticket})
 	if err != nil {
-		return nil, err
+		return usr, err
 	}
 
-	usr := &UserDetail{Name: dat.String("name"), ID: dat.String("userid"), Position: dat.String("position"), Mobile: dat.String("mobile"), Gender: dat.Int("gender"), Email: dat.String("email"), Avatar: dat.String("avatar"), Department: dat.Ints("department")}
+	log.App.Debug("userdetail", dat)
+
+	usr = users.UserDetail{Name: dat.String("name"), ID: dat.String("userid"), Position: dat.String("position"), Mobile: dat.String("mobile"), Gender: dat.Int("gender"), Email: dat.String("email"), Avatar: dat.String("avatar"), Department: dat.Ints("department")}
 	return usr, nil
 }
