@@ -33,7 +33,7 @@ var tokenMap = make(map[string]*Token, 0)
 func (a *Agent) GetToken() (*Token, error) {
 	now := time.Now()
 
-	key := a.Corp.ID + a.ID
+	key := a.Corp.ID + string(a.ID)
 
 	a.tokenMutex.Lock()
 

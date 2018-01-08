@@ -33,7 +33,7 @@ func (u *UserInfo) SetTicketExpires(n int) {
 }
 
 // FetchUser get userInfo & userDetail
-func FetchUser(agentID, code, token, scope string) (userInfo UserInfo, userDetail users.UserDetail, err error) {
+func FetchUser(agentID int, code, token, scope string) (userInfo UserInfo, userDetail users.UserDetail, err error) {
 	if code == "" {
 		return userInfo, userDetail, errors.New("user code is empty")
 	}

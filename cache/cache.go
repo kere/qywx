@@ -20,14 +20,16 @@ var (
 )
 
 // SetUser detail
-func SetUser(corpID string, usrDetail users.UserDetail, expires int) {
-	if usrDetail.ID == "" {
-		return
+func SetUser(corpID string, usr users.UserDetail, expires int) error {
+	if usr.ID == "" {
+		return nil
 	}
 
-	src, _ := json.Marshal(usrDetail)
-	v := md5.Sum([]byte(corpID + usrDetail.ID))
-	cache.Set(fmt.Sprintf("%s-%x", usrKey, v), string(src), expires)
+	src, _ := json.Marshal(usr)
+	v := md5.Sum([]byte(corpID + usr.ID))
+
+	err := cache.Set(fmt.Sprintf("%s-%x", usrKey, v), string(src), expires)
+	return err
 }
 
 // GetUser detail

@@ -17,18 +17,18 @@ type OAuth struct {
 	ResponseType string
 	Scope        string
 
-	AgentID string
+	AgentID int
 	State   string
 }
 
 // NewOAuth func
-func NewOAuth(appid, agentID string) *OAuth {
+func NewOAuth(appid string, agentID int) *OAuth {
 	return &OAuth{Appid: appid, AgentID: agentID, ResponseType: "code", Scope: "snsapi_base"}
 }
 
 // OpenAndRedirect oauth
 func (o *OAuth) OpenAndRedirect(rw http.ResponseWriter, req *http.Request, redirectURL string) {
-	url := fmt.Sprintf(openURL, o.Appid, redirectURL, o.ResponseType, o.Scope, o.AgentID, o.State)
+	url := fmt.Sprintf(openURL, o.Appid, redirectURL, o.ResponseType, o.Scope, string(o.AgentID), o.State)
 
 	http.Redirect(rw, req, url, http.StatusSeeOther)
 }
@@ -84,6 +84,6 @@ func (o *OAuth) GetUserDetail(accessToken, ticket string) (usr users.UserDetail,
 
 	log.App.Debug("userdetail", dat)
 
-	usr = users.UserDetail{Name: dat.String("name"), ID: dat.String("userid"), Position: dat.String("position"), Mobile: dat.String("mobile"), Gender: dat.Int("gender"), Email: dat.String("email"), Avatar: dat.String("avatar"), Department: dat.Ints("department")}
+	usr = users.UserDetail{Name: dat.String("name"), ID: dat.String("userid"), Position: dat.String("position"), Mobile: dat.String("mobile"), Gender: dat.String("gender"), Email: dat.String("email"), Avatar: dat.String("avatar"), Department: dat.Ints("department")}
 	return usr, nil
 }

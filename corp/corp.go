@@ -16,7 +16,7 @@ type Corporation struct {
 type Agent struct {
 	Corp       *Corporation
 	tokenMutex sync.Mutex
-	ID         string `json:"agentid"`
+	ID         int    `json:"agentid"`
 	Secret     string `json:"secret"`
 	MsgToken   string `json:"msgtoken"`
 	MsgAesKey  string `json:"msgaeskey"`
