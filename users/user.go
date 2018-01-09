@@ -33,7 +33,7 @@ type UserDetail struct {
 // GetUser func
 func GetUser(userID, token string) (UserDetail, error) {
 	var usr UserDetail
-	dat, err := client.GetMapData(fmt.Sprintf(userGetURL, token, userID))
+	dat, err := client.Get(fmt.Sprintf(userGetURL, token, userID))
 	if err != nil {
 		return usr, err
 	}

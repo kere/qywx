@@ -2,9 +2,6 @@ package message
 
 import "encoding/xml"
 
-// MsgType 基本消息类型
-type MsgType string
-
 // EventType 事件类型
 type EventType string
 
@@ -76,23 +73,31 @@ type ResponseEncryptedXMLMsg struct {
 	Nonce        string   `xml:"Nonce"        json:"Nonce"`
 }
 
+// ICommonMessage interface
+type ICommonMessage interface {
+	SetToUserName(v string)
+	SetFromUserName(v string)
+	SetMsgType(v string)
+	SetCreateTime(v int64)
+}
+
 // CommonToken 消息中通用的结构
 type CommonToken struct {
 	XMLName      xml.Name `xml:"xml"`
 	ToUserName   string   `xml:"ToUserName"`
 	FromUserName string   `xml:"FromUserName"`
 	CreateTime   int64    `xml:"CreateTime"`
-	MsgType      MsgType  `xml:"MsgType"`
+	MsgType      string   `xml:"MsgType"`
 }
 
 //SetToUserName set ToUserName
-func (msg *CommonToken) SetToUserName(toUserName string) {
-	msg.ToUserName = toUserName
+func (msg *CommonToken) SetToUserName(v string) {
+	msg.ToUserName = v
 }
 
 //SetFromUserName set FromUserName
-func (msg *CommonToken) SetFromUserName(fromUserName string) {
-	msg.FromUserName = fromUserName
+func (msg *CommonToken) SetFromUserName(v string) {
+	msg.FromUserName = v
 }
 
 //SetCreateTime set createTime
@@ -101,6 +106,6 @@ func (msg *CommonToken) SetCreateTime(createTime int64) {
 }
 
 //SetMsgType set MsgType
-func (msg *CommonToken) SetMsgType(msgType MsgType) {
-	msg.MsgType = msgType
+func (msg *CommonToken) SetMsgType(v string) {
+	msg.MsgType = v
 }

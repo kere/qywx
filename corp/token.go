@@ -46,7 +46,7 @@ func (a *Agent) GetToken() (*Token, error) {
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
 	uri := fmt.Sprintf(tokenURL, a.Corp.ID, a.Secret)
-	dat, err := client.GetMapData(uri)
+	dat, err := client.Get(uri)
 	if err != nil {
 		a.tokenMutex.Unlock()
 		return nil, err

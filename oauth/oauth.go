@@ -37,7 +37,7 @@ func (o *OAuth) OpenAndRedirect(rw http.ResponseWriter, req *http.Request, redir
 // 请求方式：GET（HTTPS）
 func (o *OAuth) GetUserInfo(accessToken, code string) (usr UserInfo, err error) {
 	url := fmt.Sprintf(userInfoURL, accessToken, code)
-	dat, err := client.GetMapData(url)
+	dat, err := client.Get(url)
 	if err != nil {
 		return usr, err
 	}
@@ -77,7 +77,7 @@ func (o *OAuth) GetUserDetail(accessToken, ticket string) (usr users.UserDetail,
 	}
 
 	url := fmt.Sprintf(userDetailURL, accessToken)
-	dat, err := client.PostMapData(url, util.MapData{"user_ticket": ticket})
+	dat, err := client.PostJSON(url, util.MapData{"user_ticket": ticket})
 	if err != nil {
 		return usr, err
 	}

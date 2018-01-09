@@ -1,15 +1,11 @@
 package send
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"strings"
 
 	utilib "github.com/kere/gno/libs/util"
+	"github.com/kere/qywx/client"
 	"github.com/kere/qywx/corp"
 )
 
@@ -53,35 +49,5 @@ func (m *Message) Send() (utilib.MapData, error) {
 		return nil, err
 	}
 
-	return Post(fmt.Sprintf(sendURL, token.Value), dat)
-}
-
-// Post func
-func Post(uri string, dat utilib.MapData) (utilib.MapData, error) {
-	src, err := json.Marshal(dat)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.Post(uri, "application/json", bytes.NewReader(src))
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-	src, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var obj utilib.MapData
-	err = json.Unmarshal(src, obj)
-	if err != nil {
-		return nil, err
-	}
-
-	if obj.Int("errcode") > 0 {
-		return obj, errors.New(obj.String("errmsg"))
-	}
-	return obj, nil
+	return client.PostJSON(fmt.Sprintf(sendURL, token.Value), dat)
 }

@@ -2,7 +2,7 @@ package message
 
 const (
 	//MsgTypeText 表示文本消息
-	MsgTypeText MsgType = "text"
+	MsgTypeText = "text"
 	//MsgTypeImage 表示图片消息
 	MsgTypeImage = "image"
 	//MsgTypeVoice 表示语音消息
