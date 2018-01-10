@@ -1,9 +1,7 @@
 package cache
 
 import (
-	"crypto/md5"
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/kere/gno/libs/cache"
@@ -25,17 +23,22 @@ func SetUser(corpID string, usr users.UserDetail, expires int) error {
 		return nil
 	}
 
-	src, _ := json.Marshal(usr)
-	v := md5.Sum([]byte(corpID + usr.ID))
+	src, err := json.Marshal(usr)
+	if err != nil {
+		return err
+	}
 
-	err := cache.Set(fmt.Sprintf("%s-%x", usrKey, v), string(src), expires)
-	return err
+	return cache.Set(Key(corpID, usr.ID), string(src), expires)
+}
+
+// Key cached
+func Key(corpID, uid string) string {
+	return usrKey + corpID + "-" + uid
 }
 
 // GetUser detail
 func GetUser(corpID, uid string) (usr users.UserDetail) {
-	v := md5.Sum([]byte(corpID + uid))
-	src, _ := cache.Get(fmt.Sprintf("%s-%x", usrKey, v))
+	src, _ := cache.Get(Key(corpID, uid))
 	if len(src) == 0 {
 		return usr
 	}

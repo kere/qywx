@@ -3,7 +3,6 @@ package users
 import (
 	"fmt"
 
-	"github.com/kere/gno/libs/log"
 	"github.com/kere/qywx/client"
 )
 
@@ -37,8 +36,6 @@ func GetUser(userID, token string) (UserDetail, error) {
 	if err != nil {
 		return usr, err
 	}
-
-	log.App.Debug("get wx user:", dat)
 
 	usr.ID = dat.String("userid")
 	usr.Name = dat.String("name")

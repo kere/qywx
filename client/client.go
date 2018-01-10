@@ -32,6 +32,9 @@ func PostJSON(uri string, dat util.MapData) (util.MapData, error) {
 func send(method, uri string, dat util.MapData) (util.MapData, error) {
 	var body []byte
 	var err error
+
+	log.App.Debug(uri)
+
 	switch method {
 	case "GET":
 		body, err = get(uri)
@@ -54,6 +57,8 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 		return nil, errors.New(v.String("errmsg"))
 	}
 
+	log.App.Debug(v)
+
 	return v, nil
 }
 
@@ -63,7 +68,6 @@ func get(uri string) ([]byte, error) {
 		return nil, err
 	}
 
-	log.App.Debug(uri)
 	defer resq.Body.Close()
 	return ioutil.ReadAll(resq.Body)
 }
@@ -78,7 +82,6 @@ func post(uri string, dat util.MapData) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.App.Debug(uri, dat)
 
 	defer resq.Body.Close()
 	return ioutil.ReadAll(resq.Body)
@@ -94,7 +97,6 @@ func postJSON(uri string, dat util.MapData) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.App.Debug(uri, dat)
 
 	defer resp.Body.Close()
 	return ioutil.ReadAll(resp.Body)

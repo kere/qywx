@@ -103,17 +103,12 @@ func (c *Context) SendBy(f func(agent *corp.Agent, msg *MixMessage) (ICommonMess
 	msg.SetFromUserName(c.Agent.Corp.ID)
 	msg.SetToUserName(c.MixMessage.FromUserName)
 
-	src, _ := xml.Marshal(msg)
-	log.App.Debug("sendBy msg:", string(src))
-
 	rmsg, err := c.buildResponseEncryptedMsg(msg)
 	if err != nil {
 		return err
 	}
 
-	src, _ = xml.Marshal(rmsg)
-	log.App.Debug("sendBy encrypt:", string(src))
-
+	log.App.Debug("auto sendto:", c.MixMessage.ToUserName)
 	WriteXML(c.Writer, rmsg)
 	return nil
 }

@@ -2,8 +2,8 @@ package corp
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/client"
 )
 
@@ -12,49 +12,52 @@ const (
 	tokenURL = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
 )
 
-// Token corp access token
-type Token struct {
-	Value     string
-	Expires   int
-	ExpiresAt time.Time
+type tokenCached struct {
+	cache.Map
+	CorpID      string
+	AgentSecret string
 }
 
-// newToken build token
-func newToken(token string, expires int) *Token {
-	t := &Token{Value: token}
-	t.Expires = expires
-	t.ExpiresAt = time.Now().Add(time.Duration(expires-60) * time.Second)
+func newTokenCached(corpID, secret string) *tokenCached {
+	t := &tokenCached{CorpID: corpID, AgentSecret: secret}
+	t.Init(t)
 	return t
 }
 
-var tokenMap = make(map[string]*Token, 0)
+// CheckValue 检查缓存值是否正确，如果正确缓存
+func (t *tokenCached) CheckValue(v interface{}) bool {
+	return v.(string) != ""
+}
 
-// GetToken get cached token
-func (a *Agent) GetToken() (*Token, error) {
-	now := time.Now()
-
-	key := a.Corp.ID + string(a.ID)
-
-	a.tokenMutex.Lock()
-
-	t, isok := tokenMap[key]
-	if isok && now.Before(t.ExpiresAt) {
-		a.tokenMutex.Unlock()
-		return t, nil
-	}
-
+// Build func
+func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
-	uri := fmt.Sprintf(tokenURL, a.Corp.ID, a.Secret)
-	dat, err := client.Get(uri)
+	dat, err := client.Get(fmt.Sprintf(tokenURL, t.CorpID, t.AgentSecret))
 	if err != nil {
-		a.tokenMutex.Unlock()
-		return nil, err
+		return "", 0, err
 	}
 
-	t = newToken(dat.String("access_token"), dat.Int("expires_in"))
-	tokenMap[key] = t
-	a.tokenMutex.Unlock()
+	// v = newToken(dat.String("access_token"), dat.Int("expires_in"))
+	return dat.String("access_token"), dat.Int("expires_in"), nil
+}
 
-	return t, nil
+// map[agentID] *tokenCached
+var tokenMap = make(map[int]*tokenCached, 0)
+
+// GetToken get cached token
+func (a *Agent) GetToken() (string, error) {
+	var t *tokenCached
+	var isok bool
+	if t, isok = tokenMap[a.ID]; !isok {
+		t = newTokenCached(a.Corp.ID, a.Secret)
+		tokenMap[a.ID] = t
+	}
+
+	tmp := t.Get(a.Corp.ID, a.ID)
+	if tmp == nil {
+		return "", nil
+	}
+
+	return tmp.(string), nil
 }
