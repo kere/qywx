@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/kere/qywx/corp"
 	"github.com/kere/qywx/users"
 )
 
@@ -33,12 +32,12 @@ func (u *UserInfo) SetTicketExpires(n int) {
 }
 
 // FetchUser get userInfo & userDetail
-func FetchUser(agentID int, code, token, scope string) (userInfo UserInfo, userDetail users.UserDetail, err error) {
+func FetchUser(corpID string, agentID int, code, token, scope string) (userInfo UserInfo, userDetail users.UserDetail, err error) {
 	if code == "" {
 		return userInfo, userDetail, errors.New("user code is empty")
 	}
 
-	oa := NewOAuth(corp.Corp.ID, agentID)
+	oa := NewOAuth(corpID, agentID)
 	if scope != "" {
 		oa.Scope = scope
 	}

@@ -1,6 +1,7 @@
 package corp
 
 import (
+	"errors"
 	"sync"
 )
 
@@ -23,6 +24,9 @@ type Agent struct {
 }
 
 // GetAgent return *Agent
-func (c *Corporation) GetAgent(agentName string) *Agent {
-	return c.AgentMap[agentName]
+func (c *Corporation) GetAgent(name string) (*Agent, error) {
+	if a, isok := c.AgentMap[name]; isok {
+		return a, nil
+	}
+	return nil, errors.New("agent name not found")
 }
