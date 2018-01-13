@@ -19,8 +19,8 @@ type Department struct {
 	Order    int    `json:"order"`
 }
 
-// GetDepartments func
-func GetDepartments(departID int, token string) ([]Department, error) {
+// WxDepartments func
+func WxDepartments(departID int, token string) ([]Department, error) {
 	dptList := make([]Department, 0)
 	s := ""
 	if departID > 0 {

@@ -10,6 +10,8 @@ type Corporation struct {
 	Name           string            `json:"name"`
 	ID             string            `json:"corpid"`
 	ContactsSecret string            `json:"contacts_secret"`
+	ContactsToken  string            `json:"contacts_token"`
+	ContactsAesKey string            `json:"contacts_aeskey"`
 	AgentMap       map[string]*Agent `json:"agents"`
 }
 
@@ -29,4 +31,14 @@ func (c *Corporation) GetAgent(name string) (*Agent, error) {
 		return a, nil
 	}
 	return nil, errors.New("agent name not found")
+}
+
+// GetAgentByID return *Agent
+func (c *Corporation) GetAgentByID(id int) *Agent {
+	for _, a := range c.AgentMap {
+		if a.ID == id {
+			return a
+		}
+	}
+	return nil
 }

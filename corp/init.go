@@ -39,3 +39,13 @@ func GetByName(name string) (*Corporation, error) {
 
 	return nil, errors.New("corp name not found")
 }
+
+// GetByID get corp by name
+func GetByID(corpID string) *Corporation {
+	for _, v := range corpMap {
+		if v.ID == corpID {
+			return v
+		}
+	}
+	return nil
+}

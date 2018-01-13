@@ -19,8 +19,8 @@ type Tag struct {
 	Name string `json:"tagname"`
 }
 
-// GetTags tab list
-func GetTags(token string) ([]Tag, error) {
+// WxTags tab list
+func WxTags(token string) ([]Tag, error) {
 	tags := make([]Tag, 0)
 
 	dat, err := client.Get(fmt.Sprintf(tagListURL, token))
@@ -48,11 +48,11 @@ type User struct {
 	Name   string `json:"name"`
 }
 
-// GetTagUsers tab list
-func GetTagUsers(tagid int, token string) (tagname string, usrs []User, pids []int, err error) {
+// WxTagUsers tab list
+func WxTagUsers(tagid int, token string) (tagname string, usrs []User, partyIds []int, err error) {
 	dat, err := client.Get(fmt.Sprintf(tagGetURL, token, tagid))
 	if err != nil {
-		return tagname, usrs, pids, err
+		return tagname, usrs, partyIds, err
 	}
 
 	if arr, isok := dat["userlist"].([]interface{}); isok {
@@ -67,9 +67,9 @@ func GetTagUsers(tagid int, token string) (tagname string, usrs []User, pids []i
 
 	if arr, isok := dat["partylist"].([]interface{}); isok {
 		for _, d := range arr {
-			pids = append(pids, int(d.(float64)))
+			partyIds = append(partyIds, int(d.(float64)))
 		}
 	}
 
-	return dat.String("tagname"), usrs, pids, nil
+	return dat.String("tagname"), usrs, partyIds, nil
 }

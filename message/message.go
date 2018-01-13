@@ -2,9 +2,6 @@ package message
 
 import "encoding/xml"
 
-// EventType 事件类型
-type EventType string
-
 //MixMessage 存放所有微信发送过来的消息和事件
 type MixMessage struct {
 	CommonToken
@@ -25,13 +22,13 @@ type MixMessage struct {
 	URL          string  `xml:"Url"`
 
 	//事件相关
-	Event     EventType `xml:"Event"`
-	EventKey  string    `xml:"EventKey"`
-	Ticket    string    `xml:"Ticket"`
-	Latitude  string    `xml:"Latitude"`
-	Longitude string    `xml:"Longitude"`
-	Precision string    `xml:"Precision"`
-	MenuID    string    `xml:"MenuId"`
+	Event     string `xml:"Event"`
+	EventKey  string `xml:"EventKey"`
+	Ticket    string `xml:"Ticket"`
+	Latitude  string `xml:"Latitude"`
+	Longitude string `xml:"Longitude"`
+	Precision string `xml:"Precision"`
+	MenuID    string `xml:"MenuId"`
 
 	ScanCodeInfo struct {
 		ScanType   string `xml:"ScanType"`

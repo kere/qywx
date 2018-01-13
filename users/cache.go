@@ -1,4 +1,4 @@
-package cache
+package users
 
 import (
 	"encoding/json"
@@ -6,7 +6,6 @@ import (
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/gno/libs/conf"
-	"github.com/kere/qywx/users"
 )
 
 const (
@@ -17,8 +16,8 @@ var (
 	usrMutex = new(sync.RWMutex)
 )
 
-// SetUser detail
-func SetUser(corpID string, usr users.UserDetail, expires int) error {
+// CacheSetUser detail
+func CacheSetUser(corpID string, usr UserDetail, expires int) error {
 	if usr.ID == "" {
 		return nil
 	}
@@ -28,17 +27,17 @@ func SetUser(corpID string, usr users.UserDetail, expires int) error {
 		return err
 	}
 
-	return cache.Set(Key(corpID, usr.ID), string(src), expires)
+	return cache.Set(CacheKey(corpID, usr.ID), string(src), expires)
 }
 
-// Key cached
-func Key(corpID, uid string) string {
+// CacheKey cached
+func CacheKey(corpID, uid string) string {
 	return usrKey + corpID + "-" + uid
 }
 
-// GetUser detail
-func GetUser(corpID, uid string) (usr users.UserDetail) {
-	src, _ := cache.Get(Key(corpID, uid))
+// CacheGetUser detail
+func CacheGetUser(corpID, uid string) (usr UserDetail) {
+	src, _ := cache.Get(CacheKey(corpID, uid))
 	if len(src) == 0 {
 		return usr
 	}

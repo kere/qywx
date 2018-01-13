@@ -1,6 +1,7 @@
 package corp
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/kere/gno/libs/cache"
@@ -14,12 +15,12 @@ const (
 
 type tokenCached struct {
 	cache.Map
-	CorpID      string
-	AgentSecret string
+	// CorpID      string
+	// AgentSecret string
 }
 
-func newTokenCached(corpID, secret string) *tokenCached {
-	t := &tokenCached{CorpID: corpID, AgentSecret: secret}
+func newTokenCached() *tokenCached {
+	t := &tokenCached{}
 	t.Init(t)
 	return t
 }
@@ -31,9 +32,21 @@ func (t *tokenCached) CheckValue(v interface{}) bool {
 
 // Build func
 func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
+	// CorpID: corpID, AgentSecret: secret
+	corpID := args[0].(string)
+	agentID := args[1].(int)
+	cp := GetByID(corpID)
+	if cp == nil {
+		return nil, 0, errors.New("corp not found in tokenCached")
+	}
+	agent := cp.GetAgentByID(agentID)
+	if agent == nil {
+		return nil, 0, errors.New("agent not found in tokenCached")
+	}
+
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
-	dat, err := client.Get(fmt.Sprintf(tokenURL, t.CorpID, t.AgentSecret))
+	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.ID, agent.Secret))
 	if err != nil {
 		return "", 0, err
 	}
@@ -43,21 +56,11 @@ func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
 }
 
 // map[agentID] *tokenCached
-var tokenMap = make(map[int]*tokenCached, 0)
+var tkCached = newTokenCached()
 
 // GetToken get cached token
 func (a *Agent) GetToken() (string, error) {
-	var t *tokenCached
-	var isok bool
-	if t, isok = tokenMap[a.ID]; !isok {
-		t = newTokenCached(a.Corp.ID, a.Secret)
-		tokenMap[a.ID] = t
-	}
+	token := tkCached.Get(a.Corp.ID, a.ID)
 
-	tmp := t.Get(a.Corp.ID, a.ID)
-	if tmp == nil {
-		return "", nil
-	}
-
-	return tmp.(string), nil
+	return token.(string), nil
 }

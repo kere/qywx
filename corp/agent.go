@@ -26,8 +26,8 @@ type AgentInfo struct {
 	HomeURL        string
 }
 
-// GetAgentInfo 获得微信应用信息,企业仅可获取当前凭证对应的应用
-func GetAgentInfo(agentID int, token string) (a AgentInfo, err error) {
+// WXAgentInfo 获得微信应用信息,企业仅可获取当前凭证对应的应用
+func WXAgentInfo(agentID int, token string) (a AgentInfo, err error) {
 	dat, err := client.Get(fmt.Sprintf(agentInfoURL, token, agentID))
 	if err != nil {
 		return a, err
