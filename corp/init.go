@@ -22,9 +22,11 @@ func Init(filename string) {
 		panic(err)
 	}
 
-	for _, c := range corpMap {
+	for cname, c := range corpMap {
+		c.Name = cname
 		// set corp
-		for _, agent := range c.AgentMap {
+		for aName, agent := range c.AgentMap {
+			agent.Name = aName
 			agent.Corp = c
 		}
 	}

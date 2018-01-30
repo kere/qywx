@@ -7,8 +7,9 @@ import (
 
 // Corporation 企业微信
 type Corporation struct {
-	Name           string            `json:"name"`
 	ID             string            `json:"corpid"`
+	Name           string            `json:"name"`
+	Title          string            `json:"title"`
 	ContactsSecret string            `json:"contacts_secret"`
 	ContactsToken  string            `json:"contacts_token"`
 	ContactsAesKey string            `json:"contacts_aeskey"`
@@ -20,6 +21,7 @@ type Agent struct {
 	Corp       *Corporation
 	tokenMutex sync.Mutex
 	ID         int    `json:"agentid"`
+	Name       string `json:"name"`
 	Secret     string `json:"secret"`
 	MsgToken   string `json:"msgtoken"`
 	MsgAesKey  string `json:"msgaeskey"`
