@@ -33,7 +33,7 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 	var body []byte
 	var err error
 
-	log.App.Debug(uri)
+	log.App.Debug(method, uri)
 
 	switch method {
 	case "GET":
@@ -57,7 +57,7 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 		return nil, errors.New(v.String("errmsg"))
 	}
 
-	log.App.Debug(v)
+	log.App.Debug(method, v)
 
 	return v, nil
 }

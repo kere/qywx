@@ -33,10 +33,12 @@ func (t *tokenCached) CheckValue(v interface{}) bool {
 // Build func
 func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
 	// CorpID: corpID, AgentSecret: secret
-	corpID := args[0].(string)
+	// corpID := args[0].(string)
+	corpName := args[0].(string)
 	agentID := args[1].(int)
-	cp := GetByID(corpID)
-	if cp == nil {
+	// cp := GetByID(corpID)
+	cp, err := GetByName(corpName)
+	if err != nil {
 		return nil, 0, errors.New("corp not found in tokenCached")
 	}
 	agent := cp.GetAgentByID(agentID)
@@ -60,7 +62,10 @@ var tkCached = newTokenCached()
 
 // GetToken get cached token
 func (a *Agent) GetToken() (string, error) {
-	token := tkCached.Get(a.Corp.ID, a.ID)
+	token := tkCached.Get(a.Corp.Name, a.ID)
+	if token == nil {
+		return "", errors.New("get cached ticket is nil")
+	}
 
 	return token.(string), nil
 }
