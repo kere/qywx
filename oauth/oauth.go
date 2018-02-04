@@ -84,6 +84,6 @@ func (o *OAuth) GetUserDetail(accessToken, ticket string) (usr users.UserDetail,
 
 	log.App.Debug("userdetail", dat)
 
-	usr = users.UserDetail{Name: dat.String("name"), ID: dat.String("userid"), Position: dat.String("position"), Mobile: dat.String("mobile"), Gender: dat.String("gender"), Email: dat.String("email"), Avatar: dat.String("avatar"), Department: dat.Ints("department")}
+	usr = users.UserDetail{Name: dat.String("name"), UserID: dat.String("userid"), Position: dat.String("position"), Mobile: dat.String("mobile"), Gender: dat.String("gender"), Email: dat.String("email"), Avatar: dat.String("avatar"), Department: dat.Ints("department")}
 	return usr, nil
 }

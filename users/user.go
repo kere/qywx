@@ -3,6 +3,7 @@ package users
 import (
 	"fmt"
 
+	"github.com/kere/gno/db"
 	"github.com/kere/qywx/client"
 )
 
@@ -12,7 +13,8 @@ const (
 
 // UserDetail class
 type UserDetail struct {
-	ID          string `json:"userid"`
+	db.BaseVO
+	UserID      string `json:"userid"`
 	Name        string `json:"name"`
 	EnglishName string `json:"english_name"`
 	Department  []int  `json:"department"` // 部门
@@ -37,7 +39,7 @@ func WxUser(userID, token string) (UserDetail, error) {
 		return usr, err
 	}
 
-	usr.ID = dat.String("userid")
+	usr.UserID = dat.String("userid")
 	usr.Name = dat.String("name")
 	usr.EnglishName = dat.StringDefault("english_name", "")
 	usr.Department = dat.IntsDefault("department", []int{})
@@ -53,4 +55,113 @@ func WxUser(userID, token string) (UserDetail, error) {
 	usr.Enable = dat.IntDefault("enable", 0)
 
 	return usr, nil
+}
+
+// FromDataRow UserDetail from db.DataRow
+func (usr UserDetail) FromDataRow(dat db.DataRow) {
+	usr.UserID = dat.String("userid")
+	usr.Name = dat.String("name")
+	usr.EnglishName = dat.StringDefault("english_name", "")
+	usr.Department = dat.IntsDefault("department", []int{})
+	// usr.Order = dat.String("order")
+	usr.Position = dat.StringDefault("position", "")
+	usr.Mobile = dat.StringDefault("mobile", "")
+	usr.Email = dat.StringDefault("email", "")
+	usr.Avatar = dat.StringDefault("avatar", "")
+	usr.Tele = dat.StringDefault("telephone", "")
+	usr.IsLeader = dat.IntDefault("isleader", 0)
+	usr.Gender = dat.String("gender")
+	usr.Status = dat.IntDefault("status", 0)
+	usr.Enable = dat.IntDefault("enable", 0)
+}
+
+// ToDataRow UserDetail to db.DataRow
+func (usr UserDetail) ToDataRow() db.DataRow {
+	if usr.UserID == "" {
+		return nil
+	}
+
+	row := db.DataRow{"userid": usr.UserID}
+
+	if usr.Mobile != "" {
+		row["mobile"] = usr.Mobile
+	}
+	if usr.Email != "" {
+		row["email"] = usr.Email
+	}
+	if len(usr.Department) > 0 {
+		row["department"] = usr.Department
+	}
+	if usr.Name != "" {
+		row["name"] = usr.Name
+	}
+	if usr.Avatar != "" {
+		row["avatar"] = usr.Avatar
+	}
+	if usr.Position != "" {
+		row["position"] = usr.Position
+	}
+	if usr.Gender != "" {
+		row["gender"] = usr.Gender
+	}
+	if usr.Status != 0 {
+		row["status"] = usr.Status
+	}
+	if usr.Enable != 0 {
+		row["enable"] = usr.Enable
+	}
+	if usr.IsLeader != 0 {
+		row["isleader"] = usr.IsLeader
+	}
+	return row
+}
+
+// SaveUser db
+func SaveUser(table string, row db.DataRow) error {
+	userid := row.String("userid")
+	if userid == "" {
+		return nil
+	}
+	if row.IsSet("userid_old") {
+		userid = row.String("userid_old")
+		delete(row, "userid_old")
+	}
+
+	mobile := row.String("mobile")
+	q := db.NewQueryBuilder(table)
+	u := db.NewUpdateBuilder(table)
+
+	r, err := q.Where("userid=?", userid).QueryOne()
+	if err != nil {
+		return err
+	}
+
+	var action int
+	if r.IsEmpty() {
+		if mobile == "" {
+			action = 1
+		} else {
+			// mobile != ""
+			r, _ = q.Where("mobile=?", mobile).QueryOne()
+			if r.IsEmpty() {
+				action = 1
+			} else {
+				action = 3
+				u.Where("mobile=?", mobile)
+			}
+		}
+	} else {
+		action = 3
+		u.Where("userid=?", userid)
+	}
+
+	if action == 1 {
+		// create
+		_, err = db.NewInsertBuilder(table).Insert(row)
+	} else {
+		// update
+		_, err = u.Update(row)
+	}
+
+	return err
 }

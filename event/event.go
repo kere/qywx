@@ -1,6 +1,11 @@
 package event
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"strings"
+
+	"github.com/kere/gno/db"
+)
 
 const (
 	//EventSubscribe 订阅
@@ -45,7 +50,9 @@ type ContactsEvent struct {
 
 	ChangeType string `xml:"ChangeType"`
 
-	UserID      string `xml:"UserID"`
+	UserID    string `xml:"UserID"`
+	NewUserID string `xml:"NewUserID"`
+
 	Name        string `xml:"Name"`
 	Department  string `xml:"Department"`
 	Mobile      string `xml:"Mobile"`
@@ -57,4 +64,46 @@ type ContactsEvent struct {
 	EnglishName string `xml:"EnglishName"`
 	IsLeader    string `xml:"IsLeader"`
 	Telephone   string `xml:"Telephone"`
+}
+
+// ToDataRow to db.DataRow
+func (c ContactsEvent) ToDataRow() db.DataRow {
+	if c.UserID == "" {
+		return nil
+	}
+	row := db.DataRow{"userid": c.UserID}
+
+	if c.Mobile != "" {
+		row["mobile"] = c.Mobile
+	}
+	if c.NewUserID != "" {
+		row["userid_old"] = c.UserID
+		row["userid"] = c.NewUserID
+	}
+	if c.Email != "" {
+		row["email"] = c.Email
+	}
+	if len(c.Department) > 0 {
+		row["department"] = strings.Split(c.Department, ",")
+	}
+	if c.Name != "" {
+		row["name"] = c.Name
+	}
+	if c.Avatar != "" {
+		row["avatar"] = c.Avatar
+	}
+	if c.Position != "" {
+		row["position"] = c.Position
+	}
+	if c.Gender != "" {
+		row["gender"] = c.Gender
+	}
+	if c.Status != "" && c.Status != "0" {
+		row["status"] = c.Status
+	}
+
+	if c.IsLeader != "" && c.IsLeader != "0" {
+		row["isleader"] = c.IsLeader
+	}
+	return row
 }

@@ -51,6 +51,8 @@ func (c *Context) ParsePost() error {
 	}
 
 	c.Nonce = nonce
+
+	// log.App.Debug("message:", string(rawMsg))
 	return xml.Unmarshal(rawMsg, &c.MixMessage)
 }
 

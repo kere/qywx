@@ -3,8 +3,6 @@ package oauth
 import (
 	"errors"
 	"time"
-
-	"github.com/kere/qywx/users"
 )
 
 const (
@@ -32,29 +30,29 @@ func (u *UserInfo) SetTicketExpires(n int) {
 }
 
 // FetchUser get userInfo & userDetail
-func FetchUser(corpID string, agentID int, code, token, scope string) (userInfo UserInfo, userDetail users.UserDetail, err error) {
+func FetchUser(corpID string, agentID int, code, token string) (userInfo UserInfo, err error) {
 	if code == "" {
-		return userInfo, userDetail, errors.New("user code is empty")
+		return userInfo, errors.New("user code is empty")
 	}
 
 	oa := NewOAuth(corpID, agentID)
-	if scope != "" {
-		oa.Scope = scope
-	}
+	// if scope != "" {
+	// 	oa.Scope = scope
+	// }
 	oa.State = ""
 
 	userInfo, err = oa.GetUserInfo(token, code)
 	if err != nil {
-		return userInfo, userDetail, err
+		return userInfo, err
 	}
 
 	if userInfo.IsOpenUser {
-		return userInfo, userDetail, errors.New("openuser")
+		return userInfo, errors.New("openuser")
 	}
 
-	if userInfo.Ticket != "" {
-		userDetail, err = oa.GetUserDetail(token, userInfo.Ticket)
-	}
+	// if userInfo.Ticket != "" {
+	// 	userDetail, err = oa.GetUserDetail(token, userInfo.Ticket)
+	// }
 
-	return userInfo, userDetail, err
+	return userInfo, err
 }

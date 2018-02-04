@@ -18,7 +18,7 @@ var (
 
 // CacheSetUser detail
 func CacheSetUser(corpID string, usr UserDetail, expires int) error {
-	if usr.ID == "" {
+	if usr.UserID == "" {
 		return nil
 	}
 
@@ -27,7 +27,7 @@ func CacheSetUser(corpID string, usr UserDetail, expires int) error {
 		return err
 	}
 
-	return cache.Set(CacheKey(corpID, usr.ID), string(src), expires)
+	return cache.Set(CacheKey(corpID, usr.UserID), string(src), expires)
 }
 
 // CacheKey cached

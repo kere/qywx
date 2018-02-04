@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/kere/gno/libs/log"
 	"github.com/kere/qywx/message"
 	"github.com/kere/qywx/util"
 )
@@ -49,5 +50,6 @@ func (c *ContactsContext) ParsePost() error {
 	}
 
 	c.Nonce = nonce
+	log.App.Debug("contact:", string(rawMsg))
 	return xml.Unmarshal(rawMsg, &c.Event)
 }
