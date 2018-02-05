@@ -47,6 +47,11 @@ func CacheGetUser(corpID, uid string) (usr UserDetail) {
 	return usr
 }
 
+// CacheDelUser detail
+func CacheDelUser(corpID, uid string) error {
+	return cache.Delete(CacheKey(corpID, uid))
+}
+
 // Init redis instance
 func Init(config conf.Conf) {
 	cache.Init(config)

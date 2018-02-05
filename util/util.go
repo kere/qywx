@@ -51,7 +51,7 @@ func WriteContextType(w http.ResponseWriter, headers []string) {
 // AuthWxURL 微信消息接口验证
 // 如果成功，返回 解密后的 字符串;不成功，返回空字符串
 func AuthWxURL(req *http.Request, corpID, token, aeskey string) string {
-	log.App.Debug("auth http get", req.URL.String())
+	log.App.Debug("auth get", req.URL.String())
 	// msg_signature: 企业微信加密签名，msg_signature结合了企业填写的token、请求中的timestamp、nonce参数、加密的消息体
 	// timestamp: 时间戳
 	// nonce: 随机数

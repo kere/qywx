@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/kere/gno/db"
 	"github.com/kere/qywx/client"
@@ -160,6 +161,7 @@ func SaveUser(table string, row db.DataRow) error {
 		_, err = db.NewInsertBuilder(table).Insert(row)
 	} else {
 		// update
+		row["updated_at"] = time.Now()
 		_, err = u.Update(row)
 	}
 

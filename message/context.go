@@ -11,12 +11,15 @@ import (
 	"github.com/kere/qywx/util"
 )
 
+// ReplyMessageCall func
+type ReplyMessageCall func(msg MixMessage) (ICommonMessage, error)
+
 // Context for message
 type Context struct {
 	Writer                http.ResponseWriter
 	Request               *http.Request
 	Nonce                 string
-	AesKey, Token, CorpID string
+	CorpID, Token, AesKey string
 
 	MixMessage MixMessage
 }
@@ -27,13 +30,13 @@ func NewContext(w http.ResponseWriter, req *http.Request, corpID, token, aeskey 
 }
 
 // ParsePost 解析微信消息
-func (c *Context) ParsePost() error {
+func (c *Context) ParsePost() ([]byte, error) {
 	req := c.Request
 
 	var eXML EncryptedXMLMsg
 	err := xml.NewDecoder(req.Body).Decode(&eXML)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sign := req.FormValue("msg_signature")
@@ -42,22 +45,22 @@ func (c *Context) ParsePost() error {
 
 	devSign := util.Signature(c.Token, timestamp, nonce, eXML.EncryptedMsg)
 	if devSign != sign {
-		return errors.New("sign failed")
+		return nil, errors.New("sign failed")
 	}
 
 	_, rawMsg, err := util.DecryptMsg(c.CorpID, eXML.EncryptedMsg, c.AesKey)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	c.Nonce = nonce
 
-	// log.App.Debug("message:", string(rawMsg))
-	return xml.Unmarshal(rawMsg, &c.MixMessage)
+	log.App.Debug(string(rawMsg))
+	err = xml.Unmarshal(rawMsg, &c.MixMessage)
+	return rawMsg, err
 }
 
 // SendBy 发送自定义回复
-func (c *Context) SendBy(f func(msg MixMessage) (ICommonMessage, error)) error {
+func (c *Context) SendBy(f ReplyMessageCall) error {
 	if c.MixMessage.ToUserName == "" {
 		return nil
 	}
@@ -76,7 +79,7 @@ func (c *Context) SendBy(f func(msg MixMessage) (ICommonMessage, error)) error {
 		return err
 	}
 
-	log.App.Debug("auto sendto:", c.MixMessage.ToUserName)
+	log.App.Debug("sendmsg:", c.MixMessage.ToUserName)
 	util.WriteXML(c.Writer, rmsg)
 	return nil
 }

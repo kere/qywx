@@ -1,13 +1,22 @@
 package event
 
 import (
+	"encoding/json"
 	"encoding/xml"
-	"strings"
 
 	"github.com/kere/gno/db"
 )
 
 const (
+	// ChangeTypeCreateUser 新建用户
+	ChangeTypeCreateUser = "create_user"
+	// ChangeTypeUpdateUser 更新用户
+	ChangeTypeUpdateUser = "update_user"
+	// ChangeTypeDeleteUser 删除用户
+	ChangeTypeDeleteUser = "delete_user"
+
+	//EventChangeContact 订阅
+	EventChangeContact = "change_contact"
 	//EventSubscribe 订阅
 	EventSubscribe = "subscribe"
 	//EventUnsubscribe 取消订阅
@@ -34,6 +43,9 @@ const (
 	EventLocationSelect = "location_select"
 )
 
+// ReplyContactEventCall func
+type ReplyContactEventCall func(e ContactEvent) error
+
 // CommonToken 消息中通用的结构
 type CommonToken struct {
 	XMLName      xml.Name `xml:"xml"`
@@ -44,8 +56,8 @@ type CommonToken struct {
 	Event        string   `xml:"Event"`
 }
 
-//ContactsEvent 通讯录事件
-type ContactsEvent struct {
+//ContactEvent 通讯录事件
+type ContactEvent struct {
 	CommonToken
 
 	ChangeType string `xml:"ChangeType"`
@@ -67,7 +79,7 @@ type ContactsEvent struct {
 }
 
 // ToDataRow to db.DataRow
-func (c ContactsEvent) ToDataRow() db.DataRow {
+func (c ContactEvent) ToDataRow() db.DataRow {
 	if c.UserID == "" {
 		return nil
 	}
@@ -84,7 +96,12 @@ func (c ContactsEvent) ToDataRow() db.DataRow {
 		row["email"] = c.Email
 	}
 	if len(c.Department) > 0 {
-		row["department"] = strings.Split(c.Department, ",")
+		var v []int
+		src := "[" + c.Department + "]"
+		err := json.Unmarshal([]byte(src), &v)
+		if err == nil {
+			row["department"] = v
+		}
 	}
 	if c.Name != "" {
 		row["name"] = c.Name
