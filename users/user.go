@@ -59,7 +59,7 @@ func WxUser(userID, token string) (UserDetail, error) {
 }
 
 // FromDataRow UserDetail from db.DataRow
-func (usr UserDetail) FromDataRow(dat db.DataRow) {
+func (usr *UserDetail) FromDataRow(dat db.DataRow) {
 	usr.UserID = dat.String("userid")
 	usr.Name = dat.String("name")
 	usr.EnglishName = dat.StringDefault("english_name", "")

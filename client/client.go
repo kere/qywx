@@ -53,7 +53,7 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 		return nil, err
 	}
 
-	if v.IsSet("errcode") && v.Int("errcode") > 0 {
+	if v.IsSet("errcode") && v.Int("errcode") != 0 {
 		return nil, errors.New(v.String("errmsg"))
 	}
 

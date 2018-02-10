@@ -19,6 +19,7 @@ const (
 	ticketURL = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?access_token=%s"
 )
 
+// wxjs 验证的ticket
 type ticketCached struct {
 	cache.Map
 }
@@ -52,6 +53,7 @@ func (t *ticketCached) Build(args ...interface{}) (interface{}, int, error) {
 	if err != nil {
 		return "", 0, err
 	}
+
 	// 获取 access_ticket
 	// 请求方式：GET（HTTPS）
 	dat, err := client.Get(fmt.Sprintf(ticketURL, token))
