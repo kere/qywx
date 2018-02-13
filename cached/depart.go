@@ -6,7 +6,7 @@ import (
 	"github.com/kere/gno"
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/users"
+	"github.com/kere/qywx/depart"
 )
 
 // cachedDeparts
@@ -27,28 +27,28 @@ func newDepartsMap() *DepartsMap {
 }
 
 // GetDeparts func
-func GetDeparts(corpID string, agentID, departID int) []users.Department {
-	v := cachedDeparts.Get(corpID, agentID, departID)
+func GetDeparts(corpID int, agentName string, departID int) []depart.Department {
+	v := cachedDeparts.Get(corpID, agentName, departID)
 	if v == nil {
 		return nil
 	}
-	return v.([]users.Department)
+	return v.([]depart.Department)
 }
 
 // Build func
 func (t *DepartsMap) Build(args ...interface{}) (interface{}, int, error) {
-	corpID := args[0].(string)
-	agentID := args[1].(int)
+	corpID := args[0].(int)
+	agentName := args[1].(string)
 	departID := args[2].(int)
 
-	cp := corp.GetByID(corpID)
+	cp := corp.Get(corpID)
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
 
-	agent := cp.GetAgentByID(agentID)
-	if agent == nil {
-		return nil, 0, errors.New("agent not found in departCached")
+	agent, err := cp.GetAgent(agentName)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	token, err := agent.GetToken()
@@ -56,7 +56,7 @@ func (t *DepartsMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	dat, err := users.WxDepartments(departID, token)
+	dat, err := depart.WxDepartments(departID, token)
 	if err != nil {
 		return nil, 0, err
 	}

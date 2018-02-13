@@ -1,9 +1,8 @@
-package users
+package tag
 
 import (
 	"fmt"
 
-	"github.com/kere/gno/libs/log"
 	"github.com/kere/gno/libs/util"
 	"github.com/kere/qywx/client"
 )
@@ -28,7 +27,7 @@ func WxTags(token string) ([]Tag, error) {
 		return tags, err
 	}
 
-	log.App.Debug("get departments:", dat)
+	// log.App.Debug("wxtags:", dat)
 
 	arr := dat["taglist"].([]interface{})
 	for _, d := range arr {
@@ -54,6 +53,7 @@ func WxTagUsers(tagid int, token string) (tagname string, usrs []User, partyIds 
 	if err != nil {
 		return tagname, usrs, partyIds, err
 	}
+	// log.App.Debug("wxtag users:", dat)
 
 	if arr, isok := dat["userlist"].([]interface{}); isok {
 		for _, d := range arr {

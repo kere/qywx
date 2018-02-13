@@ -6,7 +6,7 @@ import (
 	"github.com/kere/gno"
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/users"
+	"github.com/kere/qywx/tag"
 )
 
 // CachedTag
@@ -27,27 +27,27 @@ func newTagMap() *TagMap {
 }
 
 // GetTags func
-func GetTags(corpID string, agentID int) []users.Tag {
-	v := cachedTags.Get(corpID, agentID)
+func GetTags(corpID int, agentName string) []tag.Tag {
+	v := cachedTags.Get(corpID, agentName)
 	if v == nil {
 		return nil
 	}
-	return v.([]users.Tag)
+	return v.([]tag.Tag)
 }
 
 // Build func
 func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
-	corpID := args[0].(string)
-	agentID := args[1].(int)
+	corpID := args[0].(int)
+	agentName := args[1].(string)
 
-	cp := corp.GetByID(corpID)
+	cp := corp.Get(corpID)
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
 
-	agent := cp.GetAgentByID(agentID)
-	if agent == nil {
-		return nil, 0, errors.New("agent not found in departCached")
+	agent, err := cp.GetAgent(agentName)
+	if err != nil {
+		return nil, 0, err
 	}
 
 	token, err := agent.GetToken()
@@ -55,7 +55,7 @@ func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	dat, err := users.WxTags(token)
+	dat, err := tag.WxTags(token)
 	if err != nil {
 		return nil, 0, err
 	}

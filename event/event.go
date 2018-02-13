@@ -14,6 +14,8 @@ const (
 	ChangeTypeUpdateUser = "update_user"
 	// ChangeTypeDeleteUser 删除用户
 	ChangeTypeDeleteUser = "delete_user"
+	// ChangeTypeUpdateTag update tag
+	ChangeTypeUpdateTag = "update_tag"
 
 	//EventChangeContact 订阅
 	EventChangeContact = "change_contact"
@@ -65,17 +67,22 @@ type ContactEvent struct {
 	UserID    string `xml:"UserID"`
 	NewUserID string `xml:"NewUserID"`
 
-	Name        string `xml:"Name"`
-	Department  string `xml:"Department"`
-	Mobile      string `xml:"Mobile"`
-	Position    string `xml:"Position"`
-	Gender      string `xml:"Gender"`
-	Email       string `xml:"Email"`
-	Status      string `xml:"Status"`
-	Avatar      string `xml:"Avatar"`
-	EnglishName string `xml:"EnglishName"`
-	IsLeader    string `xml:"IsLeader"`
-	Telephone   string `xml:"Telephone"`
+	Name          string `xml:"Name"`
+	Department    string `xml:"Department"`
+	Mobile        string `xml:"Mobile"`
+	Position      string `xml:"Position"`
+	Gender        string `xml:"Gender"`
+	Email         string `xml:"Email"`
+	Status        string `xml:"Status"`
+	Avatar        string `xml:"Avatar"`
+	EnglishName   string `xml:"EnglishName"`
+	IsLeader      string `xml:"IsLeader"`
+	Telephone     string `xml:"Telephone"`
+	TagID         string `xml:"TagId"`
+	AddUserItems  string `xml:"AddUserItems"`
+	DelUserItems  string `xml:"DelUserItems"`
+	AddPartyItems string `xml:"AddPartyItems"`
+	DelPartyItems string `xml:"DelPartyItems"`
 }
 
 // ToDataRow to db.DataRow
