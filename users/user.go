@@ -74,6 +74,7 @@ func (usr *UserDetail) FromDataRow(dat db.DataRow) {
 	usr.Gender = dat.String("gender")
 	usr.Status = dat.IntDefault("status", 0)
 	usr.Enable = dat.IntDefault("enable", 0)
+
 }
 
 // ToDataRow UserDetail to db.DataRow
