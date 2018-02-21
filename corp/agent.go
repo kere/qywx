@@ -22,8 +22,9 @@ type AgentInfo struct {
 	Close          int      `json:"close"`
 	RedirectDomain string
 	ReportLocation int `json:"report_location_flag"`
-	IsReportenter  int
-	HomeURL        string
+	//是否上报用户进入应用事件。0：不接收；1：接收
+	IsReportenter int    `json:"isreportenter"`
+	HomeURL       string `json:"home_url"`
 }
 
 // WXAgentInfo 获得微信应用信息,企业仅可获取当前凭证对应的应用

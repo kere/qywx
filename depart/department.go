@@ -5,11 +5,15 @@ import (
 
 	"github.com/kere/gno/libs/util"
 	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/users"
 )
 
 const (
-	departGetURL   = "https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=%s&id=%s"
-	departUsersURL = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=%s&department_id=%d&fetch_child=%d"
+	departGetURL = "https://qyapi.weixin.qq.com/cgi-bin/department/list?access_token=%s&id=%s"
+
+	departSimpleUsersURL = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?access_token=%s&department_id=%d&fetch_child=%d"
+
+	departUsersURL = "https://qyapi.weixin.qq.com/cgi-bin/user/list?access_token=%s&department_id=%d&fetch_child=%d"
 )
 
 // Department class
@@ -55,9 +59,36 @@ type User struct {
 	Department []int  `json:"department"`
 }
 
+// WxDepartSimpleUsers func
+func WxDepartSimpleUsers(departID int, isChild bool, token string) ([]User, error) {
+	urs := make([]User, 0)
+	isChildV := 0
+	if isChild {
+		isChildV = 1
+	}
+
+	dat, err := client.Get(fmt.Sprintf(departSimpleUsersURL, token, departID, isChildV))
+	if err != nil {
+		return urs, err
+	}
+	// log.App.Debug("wxdepart users:", dat)
+
+	arr := dat["userlist"].([]interface{})
+	for _, d := range arr {
+		dpt := util.MapData(d.(map[string]interface{}))
+		urs = append(urs, User{
+			UserID:     dpt.String("userid"),
+			Name:       dpt.String("name"),
+			Department: dpt.Ints("department"),
+		})
+	}
+
+	return urs, nil
+}
+
 // WxDepartUsers func
-func WxDepartUsers(departID int, isChild bool, token string) ([]User, error) {
-	usrs := make([]User, 0)
+func WxDepartUsers(departID int, isChild bool, token string) ([]users.UserDetail, error) {
+	urs := make([]users.UserDetail, 0)
 	isChildV := 0
 	if isChild {
 		isChildV = 1
@@ -65,19 +96,29 @@ func WxDepartUsers(departID int, isChild bool, token string) ([]User, error) {
 
 	dat, err := client.Get(fmt.Sprintf(departUsersURL, token, departID, isChildV))
 	if err != nil {
-		return usrs, err
+		return urs, err
 	}
 	// log.App.Debug("wxdepart users:", dat)
 
 	arr := dat["userlist"].([]interface{})
 	for _, d := range arr {
 		dpt := util.MapData(d.(map[string]interface{}))
-		usrs = append(usrs, User{
-			UserID:     dpt.String("userid"),
-			Name:       dpt.String("name"),
-			Department: dpt.Ints("department"),
+		urs = append(urs, users.UserDetail{
+			UserID:      dpt.String("userid"),
+			Name:        dpt.String("name"),
+			EnglishName: dpt.String("english_name"),
+			Department:  dpt.Ints("department"),
+			Position:    dpt.String("position"),
+			Mobile:      dpt.String("mobile"),
+			Gender:      dpt.String("gender"),
+			Email:       dpt.String("email"),
+			IsLeader:    dpt.Int("isleader"),
+			Avatar:      dpt.String("avatar"),
+			Tele:        dpt.String("telephone"),
+			Status:      dpt.Int("status"),
+			Enable:      dpt.Int("enable"),
 		})
 	}
 
-	return usrs, nil
+	return urs, nil
 }
