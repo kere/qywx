@@ -16,6 +16,12 @@ const (
 	ChangeTypeDeleteUser = "delete_user"
 	// ChangeTypeUpdateTag update tag
 	ChangeTypeUpdateTag = "update_tag"
+	// ChangeTypeDeleteTag delete tag
+	ChangeTypeDeleteTag = "delete_tag"
+	// ChangeTypeUpdateParty update party
+	ChangeTypeUpdateParty = "update_party"
+	// ChangeTypeDeleteParty delete party
+	ChangeTypeDeleteParty = "delete_party"
 
 	//EventChangeContact 订阅
 	EventChangeContact = "change_contact"

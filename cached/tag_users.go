@@ -3,7 +3,6 @@ package cached
 import (
 	"errors"
 
-	"github.com/kere/gno"
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
 	"github.com/kere/qywx/depart"
@@ -34,9 +33,9 @@ func newTagUsersMap() *TagUsersMap {
 	return t
 }
 
-// GetTagUsers func
-func GetTagUsers(corpID int, agentName, tagname string) *TagGet {
-	v := cachedTagUsers.Get(corpID, agentName, tagname)
+// GetTagUserData func
+func GetTagUserData(corpIndex int, tagname string) *TagGet {
+	v := cachedTagUsers.Get(corpIndex, tagname)
 	if v == nil {
 		return nil
 	}
@@ -51,32 +50,24 @@ func ClearTag() {
 
 // Build func
 func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
-	corpID := args[0].(int)
-	agentName := args[1].(string)
-	tagname := args[2].(string)
+	corpIndex := args[0].(int)
+	tagname := args[1].(string)
 
-	cp := corp.Get(corpID)
+	cp := corp.Get(corpIndex)
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
 
-	agent, err := cp.GetAgent(agentName)
+	token, err := cp.GetContactToken()
 	if err != nil {
 		return nil, 0, err
 	}
 
-	token, err := agent.GetToken()
-	if err != nil {
-		return nil, 0, err
-	}
-
-	tags := GetTags(corpID, agentName)
+	tags := GetTags(corpIndex)
 	l := len(tags)
 	if l == 0 {
 		return nil, 0, err
 	}
-
-	expires := gno.GetConfig().GetConf("data").DefaultInt("data_expires", 72000)
 
 	for i := 0; i < l; i++ {
 		if tags[i].Name == tagname {
@@ -87,7 +78,7 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 
 			departUsers := make([]depart.User, 0)
 			for _, pid := range partyIds {
-				if items := GetDepartUsersByID(corpID, agentName, pid); len(items) > 0 {
+				if items := GetDepartUsersByID(corpIndex, pid); len(items) > 0 {
 					departUsers = append(departUsers, items...)
 				}
 
@@ -95,7 +86,7 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 
 			dat := &TagGet{UserList: usrs, PartyList: partyIds, DepartUserList: departUsers}
 
-			return dat, expires, nil
+			return dat, Expires(), nil
 		}
 	}
 

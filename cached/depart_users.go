@@ -3,10 +3,10 @@ package cached
 import (
 	"errors"
 
-	"github.com/kere/gno"
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
 	"github.com/kere/qywx/depart"
+	"github.com/kere/qywx/users"
 )
 
 // CachedDepart
@@ -26,18 +26,9 @@ func newDepartUsersMap() *DepartUsersMap {
 	return t
 }
 
-// GetDepartUsersByID func
-func GetDepartUsersByID(corpID int, agentName string, departID int) []depart.User {
-	v := cachedDepartUsers.Get(corpID, agentName, departID)
-	if v == nil {
-		return nil
-	}
-	return v.([]depart.User)
-}
-
 // GetDepartUsers func
-func GetDepartUsers(corpID int, agentName, departName string) []depart.User {
-	items := GetDeparts(corpID, agentName, 0)
+func GetDepartUsers(corpIndex int, departName string) []users.UserDetail {
+	items := GetDeparts(corpIndex, 0)
 	departID := 0
 	for _, v := range items {
 		if departName == v.Name {
@@ -48,43 +39,36 @@ func GetDepartUsers(corpID int, agentName, departName string) []depart.User {
 		return nil
 	}
 
-	v := cachedDepartUsers.Get(corpID, agentName, departID)
+	v := cachedDepartUsers.Get(corpIndex, departID)
 	if v == nil {
 		return nil
 	}
-	return v.([]depart.User)
+	return v.([]users.UserDetail)
 }
 
 // ClearDepart func
 func ClearDepart() {
 	cachedDepartUsers.ClearAll()
+	cachedDepartSimpleUsers.ClearAll()
 	cachedDeparts.ClearAll()
 }
 
 // Build func
 func (t *DepartUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 	corpID := args[0].(int)
-	agentName := args[1].(string)
-	departID := args[2].(int)
+	departID := args[1].(int)
 
 	cp := corp.Get(corpID)
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
 
-	agent, err := cp.GetAgent(agentName)
+	token, err := cp.GetContactToken()
 	if err != nil {
 		return nil, 0, err
 	}
-
-	token, err := agent.GetToken()
-	if err != nil {
-		return nil, 0, err
-	}
-
-	expires := gno.GetConfig().GetConf("data").DefaultInt("data_expires", 72000)
 
 	usrs, err := depart.WxDepartUsers(departID, true, token)
 
-	return usrs, expires, err
+	return usrs, Expires(), err
 }

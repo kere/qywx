@@ -3,7 +3,6 @@ package cached
 import (
 	"errors"
 
-	"github.com/kere/gno"
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
 	"github.com/kere/qywx/tag"
@@ -27,8 +26,8 @@ func newTagMap() *TagMap {
 }
 
 // GetTags func
-func GetTags(corpID int, agentName string) []tag.Tag {
-	v := cachedTags.Get(corpID, agentName)
+func GetTags(corpIndex int) []tag.Tag {
+	v := cachedTags.Get(corpIndex)
 	if v == nil {
 		return nil
 	}
@@ -37,20 +36,14 @@ func GetTags(corpID int, agentName string) []tag.Tag {
 
 // Build func
 func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
-	corpID := args[0].(int)
-	agentName := args[1].(string)
+	corpIndex := args[0].(int)
 
-	cp := corp.Get(corpID)
+	cp := corp.Get(corpIndex)
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
 
-	agent, err := cp.GetAgent(agentName)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	token, err := agent.GetToken()
+	token, err := cp.GetContactToken()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -60,7 +53,37 @@ func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	expires := gno.GetConfig().GetConf("data").DefaultInt("data_expires", 72000)
+	return dat, Expires(), nil
+}
 
-	return dat, expires, nil
+// IsUserInTag 用户是否属于当前标签
+func IsUserInTag(corpIndex int, userid, tagName string) bool {
+	tagGet := GetTagUserData(corpIndex, tagName)
+	if tagGet == nil {
+		return false
+	}
+
+	for _, u := range tagGet.UserList {
+		if u.UserID == userid {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsDepartInTag 用户是否属于当前标签
+func IsDepartInTag(corpIndex, departID int, tagName string) bool {
+	tagGet := GetTagUserData(corpIndex, tagName)
+	if tagGet == nil {
+		return false
+	}
+
+	for _, partyID := range tagGet.PartyList {
+		if partyID == departID {
+			return true
+		}
+	}
+
+	return false
 }

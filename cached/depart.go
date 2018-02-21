@@ -3,7 +3,6 @@ package cached
 import (
 	"errors"
 
-	"github.com/kere/gno"
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
 	"github.com/kere/qywx/depart"
@@ -27,8 +26,8 @@ func newDepartsMap() *DepartsMap {
 }
 
 // GetDeparts func
-func GetDeparts(corpID int, agentName string, departID int) []depart.Department {
-	v := cachedDeparts.Get(corpID, agentName, departID)
+func GetDeparts(corpIndex int, departID int) []depart.Department {
+	v := cachedDeparts.Get(corpIndex, departID)
 	if v == nil {
 		return nil
 	}
@@ -37,21 +36,15 @@ func GetDeparts(corpID int, agentName string, departID int) []depart.Department 
 
 // Build func
 func (t *DepartsMap) Build(args ...interface{}) (interface{}, int, error) {
-	corpID := args[0].(int)
-	agentName := args[1].(string)
-	departID := args[2].(int)
+	corpIndex := args[0].(int)
+	departID := args[1].(int)
 
-	cp := corp.Get(corpID)
+	cp := corp.Get(corpIndex)
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
 
-	agent, err := cp.GetAgent(agentName)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	token, err := agent.GetToken()
+	token, err := cp.GetContactToken()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -61,7 +54,5 @@ func (t *DepartsMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	expires := gno.GetConfig().GetConf("data").DefaultInt("data_expires", 72000)
-
-	return dat, expires, nil
+	return dat, Expires(), nil
 }
