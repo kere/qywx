@@ -34,6 +34,23 @@ func GetTags(corpIndex int) []Tag {
 	return v.([]Tag)
 }
 
+// GetTagByname func
+func GetTagByname(corpIndex int, name string) Tag {
+	v := cachedTags.Get(corpIndex)
+	if v == nil {
+		return Tag{}
+	}
+
+	tags := v.([]Tag)
+	for _, item := range tags {
+		if item.Name == name {
+			return item
+		}
+	}
+
+	return Tag{}
+}
+
 // Build func
 func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
 	corpIndex := args[0].(int)

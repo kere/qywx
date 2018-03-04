@@ -76,20 +76,28 @@ func WxTagUsers(tagid int, token string) (tagname string, usrs []User, partyIds 
 }
 
 // WxTagFullUsers 包括部门下的所有用户信息
-func WxTagFullUsers(tagid int, token string) (tagname string, usrs []User, partyIds []int, dusrs []depart.User, err error) {
+func WxTagFullUsers(tagid int, token string) (tagname string, usrs []User, partyIds []int, dusrs []depart.User, useridlist []string, err error) {
 	tagname, usrs, partyIds, err = WxTagUsers(tagid, token)
 	if err != nil {
-		return tagname, usrs, partyIds, dusrs, err
+		return tagname, usrs, partyIds, dusrs, useridlist, err
 	}
 
 	var arr []depart.User
 	for i := range partyIds {
 		arr, err = depart.WxDepartSimpleUsers(partyIds[i], true, token)
 		if err != nil {
-			return tagname, usrs, partyIds, dusrs, err
+			return tagname, usrs, partyIds, dusrs, useridlist, err
 		}
 		dusrs = append(dusrs, arr...)
 	}
 
-	return tagname, usrs, partyIds, dusrs, err
+	// useridlist = []string{}
+	for _, u := range usrs {
+		useridlist = append(useridlist, u.UserID)
+	}
+	for _, u := range dusrs {
+		useridlist = append(useridlist, u.UserID)
+	}
+
+	return tagname, usrs, partyIds, dusrs, useridlist, err
 }
