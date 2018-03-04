@@ -15,30 +15,42 @@ const (
 )
 
 // WxCreate department
-func WxCreate(name string, parentID, order int, token string) (int, error) {
+func WxCreate(name string, parentID int, order int32, token string) (int, error) {
 	if name == "" {
 		return -1, errors.New("创建部门的名称不能为空")
 	}
 
-	args := util.MapData{"name": name, "parent_id": parentID, "order": order}
+	args := util.MapData{"name": name, "parentid": parentID}
+	if order > 0 {
+		args["order"] = order
+	}
+
 	dat, err := client.PostJSON(fmt.Sprintf(departCreateURL, token), args)
 
 	if err != nil {
 		return -1, err
 	}
 	// log.App.Debug("wxdeparts:", dat)
+	ClearDepart()
 
 	return dat.Int("id"), nil
 }
 
-// WxUpdate department
-func WxUpdate(id int, name string, parentID, order int, token string) error {
+// WxUpdateName department
+func WxUpdateName(id int, name string, token string) error {
 	if name == "" {
 		return errors.New("更新部门的名称不能为空")
 	}
 
-	args := util.MapData{"id": id, "name": name, "parent_id": parentID, "order": order}
-	_, err := client.PostJSON(fmt.Sprintf(departUpdateURL, token), args)
+	dat := util.MapData{"id": id, "name": name}
+	return WxUpdate(id, dat, token)
+}
+
+// WxUpdate department
+func WxUpdate(id int, dat util.MapData, token string) error {
+	_, err := client.PostJSON(fmt.Sprintf(departUpdateURL, token), dat)
+
+	ClearDepart()
 	return err
 }
 
@@ -49,5 +61,6 @@ func WxDelete(id int, token string) error {
 	}
 
 	_, err := client.Get(fmt.Sprintf(departDelteURL, token, id))
+	ClearDepart()
 	return err
 }

@@ -1,11 +1,11 @@
-package cached
+package tag
 
 import (
 	"errors"
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/tag"
+	"github.com/kere/qywx/util"
 )
 
 // CachedTag
@@ -26,12 +26,12 @@ func newTagMap() *TagMap {
 }
 
 // GetTags func
-func GetTags(corpIndex int) []tag.Tag {
+func GetTags(corpIndex int) []Tag {
 	v := cachedTags.Get(corpIndex)
 	if v == nil {
 		return nil
 	}
-	return v.([]tag.Tag)
+	return v.([]Tag)
 }
 
 // Build func
@@ -48,12 +48,12 @@ func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	dat, err := tag.WxTags(token)
+	dat, err := WxTags(token)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	return dat, Expires(), nil
+	return dat, util.Expires(), nil
 }
 
 // IsUserInTag 用户是否属于当前标签

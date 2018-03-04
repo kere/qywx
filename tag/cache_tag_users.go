@@ -1,4 +1,4 @@
-package cached
+package tag
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
 	"github.com/kere/qywx/depart"
-	"github.com/kere/qywx/tag"
+	"github.com/kere/qywx/util"
 )
 
 // CachedTag
@@ -22,7 +22,7 @@ type TagUsersMap struct {
 
 // TagGet class
 type TagGet struct {
-	UserList       []tag.User    `json:"userlist"`
+	UserList       []User        `json:"userlist"`
 	PartyList      []int         `json:"partylist"`
 	DepartUserList []depart.User `json:"depart_userlist"`
 }
@@ -71,14 +71,14 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 
 	for i := 0; i < l; i++ {
 		if tags[i].Name == tagname {
-			_, usrs, partyIds, err := tag.WxTagUsers(tags[i].ID, token)
+			_, usrs, partyIds, err := WxTagUsers(tags[i].ID, token)
 			if err != nil {
 				return nil, 0, err
 			}
 
 			departUsers := make([]depart.User, 0)
 			for _, pid := range partyIds {
-				if items := GetDepartUsersByID(corpIndex, pid); len(items) > 0 {
+				if items := depart.GetDepartUsersByID(corpIndex, pid); len(items) > 0 {
 					departUsers = append(departUsers, items...)
 				}
 
@@ -86,7 +86,7 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 
 			dat := &TagGet{UserList: usrs, PartyList: partyIds, DepartUserList: departUsers}
 
-			return dat, Expires(), nil
+			return dat, util.Expires(), nil
 		}
 	}
 

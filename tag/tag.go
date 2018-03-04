@@ -5,6 +5,7 @@ import (
 
 	"github.com/kere/gno/libs/util"
 	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/depart"
 )
 
 const (
@@ -47,7 +48,7 @@ type User struct {
 	Name   string `json:"name"`
 }
 
-// WxTagUsers tab list
+// WxTagUsers 只列出标签，不抓取部门下的用户
 func WxTagUsers(tagid int, token string) (tagname string, usrs []User, partyIds []int, err error) {
 	dat, err := client.Get(fmt.Sprintf(tagGetURL, token, tagid))
 	if err != nil {
@@ -72,4 +73,23 @@ func WxTagUsers(tagid int, token string) (tagname string, usrs []User, partyIds 
 	}
 
 	return dat.String("tagname"), usrs, partyIds, nil
+}
+
+// WxTagFullUsers 包括部门下的所有用户信息
+func WxTagFullUsers(tagid int, token string) (tagname string, usrs []User, partyIds []int, dusrs []depart.User, err error) {
+	tagname, usrs, partyIds, err = WxTagUsers(tagid, token)
+	if err != nil {
+		return tagname, usrs, partyIds, dusrs, err
+	}
+
+	var arr []depart.User
+	for i := range partyIds {
+		arr, err = depart.WxDepartSimpleUsers(partyIds[i], true, token)
+		if err != nil {
+			return tagname, usrs, partyIds, dusrs, err
+		}
+		dusrs = append(dusrs, arr...)
+	}
+
+	return tagname, usrs, partyIds, dusrs, err
 }

@@ -1,11 +1,11 @@
-package cached
+package depart
 
 import (
 	"errors"
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/depart"
+	"github.com/kere/qywx/util"
 )
 
 // cachedDeparts
@@ -13,6 +13,18 @@ var (
 	// cachedDeparts a
 	cachedDeparts = newDepartsMap()
 )
+
+// DepartmentByName 通过部门名称获得部门信息
+func DepartmentByName(name string) Department {
+	all := GetDeparts(0, 0)
+	for _, item := range all {
+		if item.Name == name {
+			return item
+		}
+	}
+
+	return Department{}
+}
 
 // DepartsMap class
 type DepartsMap struct {
@@ -26,12 +38,12 @@ func newDepartsMap() *DepartsMap {
 }
 
 // GetDeparts func
-func GetDeparts(corpIndex int, departID int) []depart.Department {
+func GetDeparts(corpIndex int, departID int) []Department {
 	v := cachedDeparts.Get(corpIndex, departID)
 	if v == nil {
 		return nil
 	}
-	return v.([]depart.Department)
+	return v.([]Department)
 }
 
 // Build func
@@ -49,10 +61,10 @@ func (t *DepartsMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	dat, err := depart.WxDepartments(departID, token)
+	dat, err := WxDepartments(departID, token)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	return dat, Expires(), nil
+	return dat, util.Expires(), nil
 }

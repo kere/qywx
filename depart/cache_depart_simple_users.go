@@ -1,11 +1,11 @@
-package cached
+package depart
 
 import (
 	"errors"
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/depart"
+	"github.com/kere/qywx/util"
 )
 
 var (
@@ -24,16 +24,16 @@ func newDepartSimpleUsersMap() *DepartSimpleUsersMap {
 }
 
 // GetDepartUsersByID func
-func GetDepartUsersByID(corpIndex int, departID int) []depart.User {
+func GetDepartUsersByID(corpIndex int, departID int) []User {
 	v := cachedDepartSimpleUsers.Get(corpIndex, departID)
 	if v == nil {
 		return nil
 	}
-	return v.([]depart.User)
+	return v.([]User)
 }
 
 // GetDepartSimpleUsers func
-func GetDepartSimpleUsers(corpIndex int, departName string) []depart.User {
+func GetDepartSimpleUsers(corpIndex int, departName string) []User {
 	items := GetDeparts(corpIndex, 0)
 	departID := 0
 	for _, v := range items {
@@ -49,7 +49,7 @@ func GetDepartSimpleUsers(corpIndex int, departName string) []depart.User {
 	if v == nil {
 		return nil
 	}
-	return v.([]depart.User)
+	return v.([]User)
 }
 
 // Build func
@@ -67,7 +67,7 @@ func (t *DepartSimpleUsersMap) Build(args ...interface{}) (interface{}, int, err
 		return nil, 0, err
 	}
 
-	usrs, err := depart.WxDepartSimpleUsers(departID, true, token)
+	usrs, err := WxDepartSimpleUsers(departID, true, token)
 
-	return usrs, Expires(), err
+	return usrs, util.Expires(), err
 }

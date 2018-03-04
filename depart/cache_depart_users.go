@@ -1,12 +1,12 @@
-package cached
+package depart
 
 import (
 	"errors"
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/depart"
 	"github.com/kere/qywx/users"
+	"github.com/kere/qywx/util"
 )
 
 // CachedDepart
@@ -28,13 +28,8 @@ func newDepartUsersMap() *DepartUsersMap {
 
 // GetDepartUsers func
 func GetDepartUsers(corpIndex int, departName string) []users.UserDetail {
-	items := GetDeparts(corpIndex, 0)
-	departID := 0
-	for _, v := range items {
-		if departName == v.Name {
-			departID = v.ID
-		}
-	}
+	dp := DepartmentByName(departName)
+	departID := dp.ID
 	if departID == 0 {
 		return nil
 	}
@@ -68,7 +63,7 @@ func (t *DepartUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	usrs, err := depart.WxDepartUsers(departID, true, token)
+	usrs, err := WxDepartUsers(departID, true, token)
 
-	return usrs, Expires(), err
+	return usrs, util.Expires(), err
 }

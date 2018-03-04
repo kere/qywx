@@ -10,13 +10,25 @@ import (
 	"sort"
 	"time"
 
+	"github.com/kere/gno"
 	"github.com/kere/gno/libs/log"
 )
 
 var (
 	xmlContentType   = []string{"text/xml; charset=utf-8"}
 	plainContentType = []string{"text/plain; charset=utf-8"}
+	expiresVal       = 0
 )
+
+// Expires int
+func Expires() int {
+	if expiresVal > 0 {
+		return expiresVal
+	}
+
+	expiresVal = gno.GetConfig().GetConf("data").DefaultInt("data_expires", 72000)
+	return expiresVal
+}
 
 //Signature sha1签名
 func Signature(params ...string) string {

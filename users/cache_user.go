@@ -1,11 +1,11 @@
-package cached
+package users
 
 import (
 	"errors"
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/users"
+	"github.com/kere/qywx/util"
 )
 
 // cachedusermap
@@ -26,12 +26,12 @@ func newCachedUserMap() *cachedUserMap {
 }
 
 // GetUserDetail func
-func GetUserDetail(corpIndex int, userid string) users.UserDetail {
+func GetUserDetail(corpIndex int, userid string) UserDetail {
 	v := cachedusermap.Get(corpIndex, userid)
 	if v == nil {
-		return users.UserDetail{}
+		return UserDetail{}
 	}
-	return v.(users.UserDetail)
+	return v.(UserDetail)
 }
 
 // ReleaseUserCache cache
@@ -54,10 +54,10 @@ func (t *cachedUserMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	dat, err := users.WxUser(userid, token)
+	dat, err := WxUser(userid, token)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	return dat, Expires(), nil
+	return dat, util.Expires(), nil
 }
