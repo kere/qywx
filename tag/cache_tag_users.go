@@ -33,6 +33,18 @@ func newTagUsersMap() *TagUsersMap {
 	return t
 }
 
+// UserInTag f
+func UserInTag(userid string, corpIndex int, tagname string) bool {
+	tagGetDat := GetTagUserData(corpIndex, tagname)
+	usrs := tagGetDat.UserList
+	for _, u := range usrs {
+		if u.UserID == userid {
+			return true
+		}
+	}
+	return false
+}
+
 // GetTagUserData func
 func GetTagUserData(corpIndex int, tagname string) *TagGet {
 	v := cachedTagUsers.Get(corpIndex, tagname)
