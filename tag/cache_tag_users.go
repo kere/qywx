@@ -5,7 +5,6 @@ import (
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/qywx/corp"
-	"github.com/kere/qywx/depart"
 	"github.com/kere/qywx/util"
 )
 
@@ -22,27 +21,15 @@ type TagUsersMap struct {
 
 // TagGet class
 type TagGet struct {
-	UserList       []User        `json:"userlist"`
-	PartyList      []int         `json:"partylist"`
-	DepartUserList []depart.User `json:"depart_userlist"`
+	UserList  []User `json:"userlist"`
+	PartyList []int  `json:"partylist"`
+	// DepartUserList []depart.User `json:"depart_userlist"`
 }
 
 func newTagUsersMap() *TagUsersMap {
 	t := &TagUsersMap{}
 	t.Init(t)
 	return t
-}
-
-// UserInTag f
-func UserInTag(userid string, corpIndex int, tagname string) bool {
-	tagGetDat := GetTagUserData(corpIndex, tagname)
-	usrs := tagGetDat.UserList
-	for _, u := range usrs {
-		if u.UserID == userid {
-			return true
-		}
-	}
-	return false
 }
 
 // GetTagUserData func
@@ -88,15 +75,15 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 				return nil, 0, err
 			}
 
-			departUsers := make([]depart.User, 0)
-			for _, pid := range partyIds {
-				if items := depart.GetDepartUsersByID(corpIndex, pid); len(items) > 0 {
-					departUsers = append(departUsers, items...)
-				}
+			// departUsers := make([]depart.User, 0)
+			// for _, pid := range partyIds {
+			// 	if items := depart.GetDepartUsersByID(corpIndex, pid); len(items) > 0 {
+			// 		departUsers = append(departUsers, items...)
+			// 	}
+			//
+			// }
 
-			}
-
-			dat := &TagGet{UserList: usrs, PartyList: partyIds, DepartUserList: departUsers}
+			dat := &TagGet{UserList: usrs, PartyList: partyIds}
 
 			return dat, util.Expires(), nil
 		}

@@ -9,14 +9,26 @@ import (
 )
 
 const (
-	tagListURL = "https://qyapi.weixin.qq.com/cgi-bin/tag/list?access_token=%s"
-	tagGetURL  = "https://qyapi.weixin.qq.com/cgi-bin/tag/get?access_token=%s&tagid=%d"
+	tagListURL   = "https://qyapi.weixin.qq.com/cgi-bin/tag/list?access_token=%s"
+	tagGetURL    = "https://qyapi.weixin.qq.com/cgi-bin/tag/get?access_token=%s&tagid=%d"
+	tagCreateURL = "https://qyapi.weixin.qq.com/cgi-bin/tag/create?access_token=%s"
 )
 
 // Tag class
 type Tag struct {
 	ID   int    `json:"tagid"`
 	Name string `json:"tagname"`
+}
+
+// WxAdd Create 标签, return tagid
+func WxAdd(tagname, token string) (int, error) {
+	dat, err := client.PostJSON(fmt.Sprint(tagCreateURL, token), util.MapData{"tagname": tagname})
+
+	if err != nil {
+		return 0, err
+	}
+
+	return dat.Int("tagid"), nil
 }
 
 // WxTags tab list
