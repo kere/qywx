@@ -38,6 +38,19 @@ func (c CheckinOA) ToSimple() *CheckinSimpleOA {
 	}
 }
 
+// CheckinSorted data
+type CheckinSorted []CheckinOA
+
+func (a CheckinSorted) Len() int {
+	return len(a)
+}
+func (a CheckinSorted) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+func (a CheckinSorted) Less(i, j int) bool {
+	return a[i].CheckinTime > a[j].CheckinTime
+}
+
 // WxCheckin get list
 // 打卡类型 itype 1：上下班打卡；2：外出打卡；3：全部打卡
 func WxCheckin(useridlist []string, start, end int64, itype int, token string) ([]CheckinOA, error) {
