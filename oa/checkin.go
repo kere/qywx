@@ -87,14 +87,14 @@ type CheckinSimpleOA struct {
 
 // WorkData class
 type WorkData struct {
-	Go    *CheckinSimpleOA `json:""`
-	Off   *CheckinSimpleOA `json:""`
+	Start *CheckinSimpleOA `json:"start"`
+	Off   *CheckinSimpleOA `json:"off"`
 	Hours float64          `json:"hours"`
 }
 
 // Build f
 func (w *WorkData) Build() {
-	a := time.Unix(w.Go.CheckinTime, 0)
+	a := time.Unix(w.Start.CheckinTime, 0)
 	b := time.Unix(w.Off.CheckinTime, 0)
 	d := b.Sub(a)
 	w.Hours = float64(d / time.Hour)
@@ -106,6 +106,7 @@ type GroupCheckin struct {
 	UserName string             `json:"user_name"`
 	Items    []*CheckinSimpleOA `json:"-"`
 	Works    []*WorkData
+	Memo     string `json:"memo"`
 }
 
 const (
@@ -134,13 +135,13 @@ func GroupCheckinData(records []CheckinOA) []GroupCheckin {
 
 		work := &WorkData{}
 		for _, v := range items {
-			if v.CheckinType == gowork && work.Go == nil && work.Off == nil {
-				work.Go = v
+			if v.CheckinType == gowork && work.Start == nil && work.Off == nil {
+				work.Start = v
 				continue
 			}
 
-			if v.CheckinType == offwork && work.Go != nil && work.Off == nil {
-				if !isSameDay(work.Go, v) {
+			if v.CheckinType == offwork && work.Start != nil && work.Off == nil {
+				if !isSameDay(work.Start, v) {
 					work = &WorkData{}
 					continue
 				}
@@ -150,8 +151,10 @@ func GroupCheckinData(records []CheckinOA) []GroupCheckin {
 				work = &WorkData{}
 			}
 		}
+
 		result = append(result, g)
 	}
+
 	return result
 }
 
