@@ -74,8 +74,8 @@ func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
 }
 
 // IsUserInTag 用户是否属于当前标签
-func IsUserInTag(corpIndex int, userid, tagName string) bool {
-	tagGet := GetTagUserData(corpIndex, tagName)
+func IsUserInTag(corpIndex int, agentName, userid, tagName string) bool {
+	tagGet := GetTagUserData(corpIndex, agentName, tagName)
 	if tagGet == nil {
 		return false
 	}
@@ -90,8 +90,8 @@ func IsUserInTag(corpIndex int, userid, tagName string) bool {
 }
 
 // IsDepartInTag 用户是否属于当前标签
-func IsDepartInTag(corpIndex, departID int, tagName string) bool {
-	tagGet := GetTagUserData(corpIndex, tagName)
+func IsDepartInTag(corpIndex int, agentName string, departID int, tagName string) bool {
+	tagGet := GetTagUserData(corpIndex, agentName, tagName)
 	if tagGet == nil {
 		return false
 	}
