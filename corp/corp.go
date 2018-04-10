@@ -2,12 +2,12 @@ package corp
 
 import (
 	"errors"
-	"sync"
 )
 
 // Corporation 企业微信
 type Corporation struct {
-	ID             string            `json:"corpid"`
+	ID             int               `json:"id"`
+	CorpID         string            `json:"corpid"`
 	Name           string            `json:"name"`
 	Title          string            `json:"title"`
 	ContactsSecret string            `json:"contacts_secret"`
@@ -18,13 +18,13 @@ type Corporation struct {
 
 // Agent 应用
 type Agent struct {
-	Corp       *Corporation
-	tokenMutex sync.Mutex
-	ID         int    `json:"agentid"`
-	Name       string `json:"name"`
-	Secret     string `json:"secret"`
-	MsgToken   string `json:"msgtoken"`
-	MsgAesKey  string `json:"msgaeskey"`
+	Corp      *Corporation
+	ID        int    `json:"id"`
+	AgentID   int    `json:"agentid"`
+	Name      string `json:"name"`
+	Secret    string `json:"secret"`
+	MsgToken  string `json:"msgtoken"`
+	MsgAesKey string `json:"msgaeskey"`
 }
 
 // GetAgent return *Agent
@@ -38,7 +38,7 @@ func (c *Corporation) GetAgent(name string) (*Agent, error) {
 // GetAgentByID return *Agent
 func (c *Corporation) GetAgentByID(id int) *Agent {
 	for _, a := range c.AgentMap {
-		if a.ID == id {
+		if a.AgentID == id {
 			return a
 		}
 	}

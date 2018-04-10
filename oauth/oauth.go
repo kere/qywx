@@ -47,14 +47,14 @@ func (o *OAuth) GetUserInfo(accessToken, code string) (usr UserInfo, err error) 
 	if dat.IsSet("OpenId") {
 		// 非企业用户
 		return UserInfo{
-			ID:         dat.String("OpenId"),
+			UserID:     dat.String("OpenId"),
 			DevicedID:  dat.String("DeviceId"),
 			IsOpenUser: true}, nil
 	}
 
 	// 企业用户
 	usr = UserInfo{
-		ID:        dat.String("UserId"),
+		UserID:    dat.String("UserId"),
 		DevicedID: dat.String("DeviceId")}
 
 	if dat.IsSet("user_ticket") {

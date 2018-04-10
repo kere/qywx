@@ -12,7 +12,7 @@ const (
 
 // AgentInfo class
 type AgentInfo struct {
-	ID             int      `json:"agentid"`
+	AgentID        int      `json:"agentid"`
 	Name           string   `json:"name"`
 	LogURL         string   `json:"square_log_url"`
 	Desc           string   `json:"description"`
@@ -34,7 +34,7 @@ func WXAgentInfo(agentID int, token string) (a AgentInfo, err error) {
 		return a, err
 	}
 
-	a.ID = dat.Int("agentid")
+	a.AgentID = dat.Int("agentid")
 	a.Name = dat.String("name")
 	a.LogURL = dat.String("square_logo_url")
 	a.Desc = dat.String("description")

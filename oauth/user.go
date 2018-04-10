@@ -16,7 +16,7 @@ const (
 // UserInfo class
 type UserInfo struct {
 	IsOpenUser      bool   `json:"is_openuser"`
-	ID              string `json:"userid"`
+	UserID          string `json:"userid"`
 	DevicedID       string `json:"deviced_id"`
 	Ticket          string `json:"ticket"`
 	TicketExpires   int    `json:"expires"`

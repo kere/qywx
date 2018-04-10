@@ -34,7 +34,7 @@ func (t *tokenContactCached) Build(args ...interface{}) (interface{}, int, error
 
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
-	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.ID, cp.ContactsSecret))
+	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.CorpID, cp.ContactsSecret))
 	if err != nil {
 		return "", 0, err
 	}
