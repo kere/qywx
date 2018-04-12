@@ -7,7 +7,7 @@ import (
 // Corporation 企业微信
 type Corporation struct {
 	ID             int               `json:"id"`
-	CorpID         string            `json:"corpid"`
+	Corpid         string            `json:"corpid"`
 	Name           string            `json:"name"`
 	Title          string            `json:"title"`
 	ContactsSecret string            `json:"contacts_secret"`
@@ -20,7 +20,7 @@ type Corporation struct {
 type Agent struct {
 	Corp      *Corporation
 	ID        int    `json:"id"`
-	AgentID   int    `json:"agentid"`
+	Agentid   int    `json:"agentid"`
 	Name      string `json:"name"`
 	Secret    string `json:"secret"`
 	MsgToken  string `json:"msgtoken"`
@@ -38,7 +38,7 @@ func (c *Corporation) GetAgent(name string) (*Agent, error) {
 // GetAgentByID return *Agent
 func (c *Corporation) GetAgentByID(id int) *Agent {
 	for _, a := range c.AgentMap {
-		if a.AgentID == id {
+		if a.Agentid == id {
 			return a
 		}
 	}

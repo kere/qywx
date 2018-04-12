@@ -26,8 +26,8 @@ func newTagMap() *TagMap {
 }
 
 // GetTags func
-func GetTags(corpIndex int) []Tag {
-	v := cachedTags.Get(corpIndex)
+func GetTags(corpid string) []Tag {
+	v := cachedTags.Get(corpid)
 	if v == nil {
 		return nil
 	}
@@ -35,8 +35,8 @@ func GetTags(corpIndex int) []Tag {
 }
 
 // GetTagByname func
-func GetTagByname(corpIndex int, name string) Tag {
-	v := cachedTags.Get(corpIndex)
+func GetTagByname(corpid, name string) Tag {
+	v := cachedTags.Get(corpid)
 	if v == nil {
 		return Tag{}
 	}
@@ -53,9 +53,12 @@ func GetTagByname(corpIndex int, name string) Tag {
 
 // Build func
 func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
-	corpIndex := args[0].(int)
+	corpid := args[0].(string)
 
-	cp := corp.Get(corpIndex)
+	cp, err := corp.GetByID(corpid)
+	if err != nil {
+		return nil, 0, errors.New("corp name not found")
+	}
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
@@ -74,8 +77,8 @@ func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
 }
 
 // IsUserInTag 用户是否属于当前标签
-func IsUserInTag(corpIndex int, agentName, userid, tagName string) bool {
-	tagGet := GetTagUserData(corpIndex, agentName, tagName)
+func IsUserInTag(corpid, agentName, userid, tagName string) bool {
+	tagGet := GetTagUserData(corpid, agentName, tagName)
 	if tagGet == nil {
 		return false
 	}
@@ -90,8 +93,8 @@ func IsUserInTag(corpIndex int, agentName, userid, tagName string) bool {
 }
 
 // IsDepartInTag 用户是否属于当前标签
-func IsDepartInTag(corpIndex int, agentName string, departID int, tagName string) bool {
-	tagGet := GetTagUserData(corpIndex, agentName, tagName)
+func IsDepartInTag(corpid, agentName string, departID int, tagName string) bool {
+	tagGet := GetTagUserData(corpid, agentName, tagName)
 	if tagGet == nil {
 		return false
 	}

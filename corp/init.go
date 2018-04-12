@@ -53,7 +53,7 @@ func Get(i int) *Corporation {
 func GetByID(corpid string) (*Corporation, error) {
 	if isLoaded {
 		for _, v := range corps {
-			if v.CorpID == corpid {
+			if v.Corpid == corpid {
 				return v, nil
 			}
 		}
@@ -125,7 +125,7 @@ func buildCorp(row db.DataRow) (*Corporation, error) {
 		agent = &Agent{
 			Corp:      c,
 			ID:        row.Int("id"),
-			AgentID:   row.Int("agentid"),
+			Agentid:   row.Int("agentid"),
 			Name:      row.String("name"),
 			Secret:    row.String("secret"),
 			MsgToken:  row.String("msgtoken"),

@@ -33,8 +33,8 @@ func newTagUsersMap() *TagUsersMap {
 }
 
 // GetTagUserData func
-func GetTagUserData(corpIndex int, agentName, tagname string) *TagGet {
-	v := cachedTagUsers.Get(corpIndex, agentName, tagname)
+func GetTagUserData(corpid, agentName, tagname string) *TagGet {
+	v := cachedTagUsers.Get(corpid, agentName, tagname)
 	if v == nil {
 		return nil
 	}
@@ -49,11 +49,14 @@ func ClearTag() {
 
 // Build func
 func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
-	corpIndex := args[0].(int)
+	corpid := args[0].(string)
 	agentName := args[1].(string)
 	tagname := args[2].(string)
 
-	cp := corp.Get(corpIndex)
+	cp, err := corp.GetByID(corpid)
+	if err != nil {
+		return nil, 0, errors.New("corp name not found")
+	}
 	if cp == nil {
 		return nil, 0, errors.New("corp not found in departCached")
 	}
@@ -69,7 +72,7 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	tags := GetTags(corpIndex)
+	tags := GetTags(corpid)
 	l := len(tags)
 	if l == 0 {
 		return nil, 0, err

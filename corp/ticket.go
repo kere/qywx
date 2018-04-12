@@ -69,7 +69,7 @@ var ticketCache = newTicketCached()
 
 // GetTicket get cached token
 func (a *Agent) GetTicket() (string, error) {
-	ticket := ticketCache.Get(a.Corp.Name, a.AgentID)
+	ticket := ticketCache.Get(a.Corp.Name, a.Agentid)
 	if ticket == nil {
 		return "", errors.New("get cached ticket is nil")
 	}
@@ -103,7 +103,7 @@ func (a *Agent) WxAPIConfig(urlstr string) (util.MapData, error) {
 	data := util.MapData{
 		"signature": sign,
 		"nonce":     nonce,
-		"corpid":    cp.CorpID,
+		"corpid":    cp.Corpid,
 		"timestamp": timestamp,
 		"url":       urlstr}
 
