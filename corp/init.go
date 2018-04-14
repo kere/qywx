@@ -10,7 +10,7 @@ import (
 
 var (
 	//TableCorp table
-	TableCorp = "crops"
+	TableCorp = "corps"
 	//TableAgent table
 	TableAgent = "agents"
 
@@ -110,7 +110,12 @@ func LoadByName(corpName string) (*Corporation, error) {
 // buildCorp get corp by id
 func buildCorp(row db.DataRow) (*Corporation, error) {
 	c := &Corporation{}
+
 	c.ID = row.Int("id")
+	c.Corpid = row.String("corpid")
+	c.Name = row.String("name")
+	c.Title = row.String("title")
+
 	c.ContactsToken = row.String("c_token")
 	c.ContactsSecret = row.String("c_secret")
 	c.ContactsAesKey = row.String("c_aeskey")
