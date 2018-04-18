@@ -119,6 +119,7 @@ func buildCorp(row db.DataRow) (*Corporation, error) {
 	c.ContactsToken = row.String("c_token")
 	c.ContactsSecret = row.String("c_secret")
 	c.ContactsAesKey = row.String("c_aeskey")
+	c.MainURL = row.String("main_url")
 
 	rows, _ := db.NewQueryBuilder(TableAgent).Cache().Where("corp_id=?", c.ID).Query()
 
