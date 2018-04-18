@@ -13,6 +13,7 @@ type Corporation struct {
 	ContactsSecret string            `json:"contacts_secret"`
 	ContactsToken  string            `json:"contacts_token"`
 	ContactsAesKey string            `json:"contacts_aeskey"`
+	MainURL        string            `json:"main_url"`
 	AgentMap       map[string]*Agent `json:"agents"`
 }
 
