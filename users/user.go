@@ -2,7 +2,6 @@ package users
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/kere/gno/db"
 	"github.com/kere/qywx/client"
@@ -125,55 +124,4 @@ func (usr UserDetail) ToDataRow() db.DataRow {
 		row["isleader"] = usr.IsLeader
 	}
 	return row
-}
-
-// SaveUser db
-func SaveUser(table string, row db.DataRow) error {
-	userid := row.String("userid")
-	if userid == "" {
-		return nil
-	}
-	if row.IsSet("userid_old") {
-		userid = row.String("userid_old")
-		delete(row, "userid_old")
-	}
-
-	mobile := row.String("mobile")
-	q := db.NewQueryBuilder(table)
-	u := db.NewUpdateBuilder(table)
-
-	r, err := q.Where("userid=?", userid).QueryOne()
-	if err != nil {
-		return err
-	}
-
-	var action int
-	if r.IsEmpty() {
-		if mobile == "" {
-			action = 1
-		} else {
-			// mobile != ""
-			r, _ = q.Where("mobile=?", mobile).QueryOne()
-			if r.IsEmpty() {
-				action = 1
-			} else {
-				action = 3
-				u.Where("mobile=?", mobile)
-			}
-		}
-	} else {
-		action = 3
-		u.Where("userid=?", userid)
-	}
-
-	if action == 1 {
-		// create
-		_, err = db.NewInsertBuilder(table).Insert(row)
-	} else {
-		// update
-		row["updated_at"] = time.Now()
-		_, err = u.Update(row)
-	}
-
-	return err
 }
