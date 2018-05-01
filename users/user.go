@@ -10,6 +10,15 @@ import (
 
 const (
 	userGetURL = "https://qyapi.weixin.qq.com/cgi-bin/user/get?access_token=%s&userid=%s"
+
+	// UserStatusActive Active
+	UserStatusActive = 1
+
+	// UserStatusDisabled disabled
+	UserStatusDisabled = 2
+
+	// UserStatusUnactived Unactived
+	UserStatusUnactived = 4
 )
 
 // UserDetail class
