@@ -30,12 +30,12 @@ func (u *UserInfo) SetTicketExpires(n int) {
 }
 
 // FetchUser get userInfo & userDetail
-func FetchUser(corpID string, agentID int, code, token string) (userInfo UserInfo, err error) {
+func FetchUser(corpid string, agentID int, code, token string) (userInfo UserInfo, err error) {
 	if code == "" {
 		return userInfo, errors.New("user code is empty")
 	}
 
-	oa := NewOAuth(corpID, agentID)
+	oa := NewOAuth(corpid, agentID)
 	// if scope != "" {
 	// 	oa.Scope = scope
 	// }
