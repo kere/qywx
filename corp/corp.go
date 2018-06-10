@@ -22,6 +22,9 @@ type Agent struct {
 	Corp      *Corporation
 	ID        int    `json:"id"`
 	Agentid   int    `json:"agentid"`
+	App       int    `json:"app"` //判断应用类型
+	ParentID  int    `json:"parent_id"`
+	Parent    *Agent `json:"-"` //JSON时忽略字段
 	Name      string `json:"name"`
 	Secret    string `json:"secret"`
 	MsgToken  string `json:"msgtoken"`

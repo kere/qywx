@@ -128,17 +128,31 @@ func buildCorp(row db.DataRow) (*Corporation, error) {
 	var agent *Agent
 	for _, row = range rows {
 		name = row.String("name")
-		agent = &Agent{
-			Corp:      c,
-			ID:        row.Int("id"),
-			Agentid:   row.Int("agentid"),
-			Name:      row.String("name"),
-			Secret:    row.String("secret"),
-			MsgToken:  row.String("msgtoken"),
-			MsgAesKey: row.String("msgaeskey"),
+		agent = row2agent(c, row)
+
+		if agent.ParentID > 0 {
+			agent.Parent = row2agent(c, rows.Search("id", agent.ParentID))
 		}
+
 		c.AgentMap[name] = agent
 	}
 
 	return c, nil
+}
+
+func row2agent(c *Corporation, row db.DataRow) *Agent {
+	if row.IsEmpty() {
+		return nil
+	}
+	return &Agent{
+		Corp:      c,
+		ID:        row.Int("id"),
+		Agentid:   row.Int("agentid"),
+		App:       row.Int("app"),
+		Name:      row.String("name"),
+		Secret:    row.String("secret"),
+		ParentID:  row.IntDefault("parent_id", 0),
+		MsgToken:  row.String("msgtoken"),
+		MsgAesKey: row.String("msgaeskey"),
+	}
 }
