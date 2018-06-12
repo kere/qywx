@@ -2,10 +2,12 @@ package users
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/gno/libs/conf"
+	"github.com/kere/qywx/corp"
 )
 
 const (
@@ -17,7 +19,7 @@ var (
 )
 
 // CacheSetUser detail
-func CacheSetUser(corpID string, usr UserDetail, expires int) error {
+func CacheSetUser(agent *corp.Agent, usr UserDetail, expires int) error {
 	if usr.UserID == "" {
 		return nil
 	}
@@ -27,17 +29,17 @@ func CacheSetUser(corpID string, usr UserDetail, expires int) error {
 		return err
 	}
 
-	return cache.Set(CacheKey(corpID, usr.UserID), string(src), expires)
+	return cache.Set(CacheKey(agent, usr.UserID), string(src), expires)
 }
 
 // CacheKey cached
-func CacheKey(corpID, uid string) string {
-	return usrKey + corpID + "-" + uid
+func CacheKey(agent *corp.Agent, uid string) string {
+	return usrKey + fmt.Sprint(agent.Corp.ID) + "-" + fmt.Sprint(agent.ID) + "-" + uid
 }
 
 // CacheGetUser detail
-func CacheGetUser(corpID, uid string) (usr UserDetail) {
-	src, _ := cache.Get(CacheKey(corpID, uid))
+func CacheGetUser(agent *corp.Agent, uid string) (usr UserDetail) {
+	src, _ := cache.Get(CacheKey(agent, uid))
 	if len(src) == 0 {
 		return usr
 	}
@@ -47,9 +49,9 @@ func CacheGetUser(corpID, uid string) (usr UserDetail) {
 	return usr
 }
 
-// CacheDelUser detail
-func CacheDelUser(corpID, uid string) error {
-	return cache.Delete(CacheKey(corpID, uid))
+// CacheDelUser clear
+func CacheDelUser(agent *corp.Agent, uid string) error {
+	return cache.Delete(CacheKey(agent, uid))
 }
 
 // Init redis instance

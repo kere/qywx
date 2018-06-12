@@ -64,7 +64,7 @@ var tkCached = newTokenCached()
 func (a *Agent) GetToken() (string, error) {
 	token := tkCached.Get(a.Corp.Name, a.Agentid)
 	if token == nil {
-		return "", errors.New("get cached ticket is nil")
+		return "", errors.New("get cached token is nil")
 	}
 
 	return token.(string), nil
