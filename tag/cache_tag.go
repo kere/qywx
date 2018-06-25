@@ -55,7 +55,7 @@ func GetTagByname(corpid, name string) Tag {
 func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
 	corpid := args[0].(string)
 
-	cp, err := corp.GetByID(corpid)
+	cp, err := corp.GetByCorpid(corpid)
 	if err != nil {
 		return nil, 0, errors.New("corp name not found")
 	}

@@ -53,7 +53,7 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 	agentName := args[1].(string)
 	tagname := args[2].(string)
 
-	cp, err := corp.GetByID(corpid)
+	cp, err := corp.GetByCorpid(corpid)
 	if err != nil {
 		return nil, 0, errors.New("corp name not found")
 	}

@@ -25,12 +25,14 @@ type Message struct {
 }
 
 // NewMessage func
-func NewMessage(agent *corp.Agent, touser, topart, totab []string, msgtype string, val map[string]string) *Message {
-	return &Message{Agent: agent, ToUser: touser, ToParty: topart, ToTag: totab, MsgType: msgtype, Value: val}
+func NewMessage(agent *corp.Agent, touser, topart, totab []string) *Message {
+	return &Message{Agent: agent, ToUser: touser, ToParty: topart, ToTag: totab}
 }
 
 // Send text
-func (m *Message) Send() (utilib.MapData, error) {
+func (m *Message) Send(txt string) (utilib.MapData, error) {
+	msgType := "text"
+
 	touser := strings.Join(m.ToUser, "|")
 	topart := strings.Join(m.ToParty, "|")
 	totag := strings.Join(m.ToTag, "|")
@@ -39,15 +41,16 @@ func (m *Message) Send() (utilib.MapData, error) {
 		"touser":  touser,
 		"topart":  topart,
 		"totag":   totag,
-		"msgtype": m.MsgType,
-		"agentid": m.Agent.ID}
-
-	dat[m.MsgType] = m.Value
+		"msgtype": msgType,
+		"text": utilib.MapData{
+			"content": txt,
+		},
+		"agentid": m.Agent.Agentid}
 
 	token, err := m.Agent.GetToken()
 	if err != nil {
 		return nil, err
 	}
 
-	return client.PostJSON(fmt.Sprintf(sendURL, token.Value), dat)
+	return client.PostJSON(fmt.Sprintf(sendURL, token), dat)
 }

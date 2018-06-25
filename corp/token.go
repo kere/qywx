@@ -41,7 +41,7 @@ func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
 	if err != nil {
 		return nil, 0, errors.New("corp not found in tokenCached")
 	}
-	agent := cp.GetAgentByID(agentID)
+	agent := cp.GetAgentByAgentid(agentID)
 	if agent == nil {
 		return nil, 0, errors.New("agent not found in tokenCached")
 	}

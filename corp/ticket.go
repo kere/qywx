@@ -44,7 +44,7 @@ func (t *ticketCached) Build(args ...interface{}) (interface{}, int, error) {
 	if err != nil {
 		return "", 0, errors.New("corp not found in tokenCached")
 	}
-	agent := cp.GetAgentByID(agentID)
+	agent := cp.GetAgentByAgentid(agentID)
 	if agent == nil {
 		return "", 0, errors.New("agent not found in tokenCached")
 	}

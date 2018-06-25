@@ -3,6 +3,7 @@ package corp
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/kere/gno/db"
@@ -49,8 +50,8 @@ func Get(i int) *Corporation {
 	return corps[i]
 }
 
-// GetByID get corp by id
-func GetByID(corpid string) (*Corporation, error) {
+// GetByCorpid get corp by id
+func GetByCorpid(corpid string) (*Corporation, error) {
 	if isLoaded {
 		for _, v := range corps {
 			if v.Corpid == corpid {
@@ -60,7 +61,21 @@ func GetByID(corpid string) (*Corporation, error) {
 		return nil, errors.New("corp id is not found")
 	}
 
-	return LoadByID(corpid)
+	return LoadByCorpid(corpid)
+}
+
+// GetByID get corp by id
+func GetByID(corpID int) (*Corporation, error) {
+	if isLoaded {
+		for _, v := range corps {
+			if v.ID == corpID {
+				return v, nil
+			}
+		}
+		return nil, errors.New("corp id is not found")
+	}
+
+	return LoadByID(corpID)
 }
 
 // GetByName get corp by name
@@ -78,7 +93,22 @@ func GetByName(corpName string) (*Corporation, error) {
 }
 
 // LoadByID get corp by id
-func LoadByID(corpid string) (*Corporation, error) {
+func LoadByID(corpID int) (*Corporation, error) {
+	q := db.NewQueryBuilder(TableCorp).Cache()
+	row, err := q.Where("id=?", corpID).QueryOne()
+	if err != nil {
+		return nil, err
+	}
+
+	if row.IsEmpty() {
+		return nil, errors.New("query corp is empty by corp " + fmt.Sprint(corpID))
+	}
+
+	return buildCorp(row)
+}
+
+// LoadByCorpid get corp by id
+func LoadByCorpid(corpid string) (*Corporation, error) {
 	q := db.NewQueryBuilder(TableCorp).Cache()
 	row, err := q.Where("corpid=?", corpid).QueryOne()
 	if err != nil {
@@ -105,6 +135,29 @@ func LoadByName(corpName string) (*Corporation, error) {
 	}
 
 	return buildCorp(row)
+}
+
+// GetAgentByID get agent by id
+func GetAgentByID(agentID int) (*Agent, error) {
+	q := db.NewQueryBuilder(TableAgent).Where("id=?", agentID).Cache()
+	row, err := q.QueryOne()
+	if err != nil {
+		return nil, err
+	}
+	if row.IsEmpty() {
+		return nil, errors.New("GetAgentByID: not found")
+	}
+
+	c, _ := GetByID(row.Int("corp_id"))
+	if c == nil {
+		return nil, errors.New("GetAgentByID: not found corp")
+	}
+
+	a := c.GetAgentByID(agentID)
+	if a == nil {
+		return nil, errors.New("GetAgentByID: not found agent " + fmt.Sprint(agentID))
+	}
+	return a, nil
 }
 
 // buildCorp get corp by id
