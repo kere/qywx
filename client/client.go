@@ -14,8 +14,8 @@ import (
 )
 
 // Get unmarshal body and reture mapdata
-func Get(uri string) (util.MapData, error) {
-	return send("GET", uri, nil)
+func Get(uri string, dat util.MapData) (util.MapData, error) {
+	return send("GET", uri, dat)
 }
 
 // PostForm unmarshal body and reture mapdata
@@ -37,7 +37,7 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 
 	switch method {
 	case "GET":
-		body, err = get(uri)
+		body, err = get(uri, dat)
 	case "POST":
 		body, err = post(uri, dat)
 	case "PostJson":
@@ -62,8 +62,16 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 	return v, nil
 }
 
-func get(uri string) ([]byte, error) {
-	resq, err := http.Get(uri)
+func get(uri string, dat util.MapData) ([]byte, error) {
+	params := ""
+	if dat != nil {
+		vals := url.Values{}
+		for k, v := range dat {
+			vals.Add(k, fmt.Sprint(v))
+		}
+		params = "?" + vals.Encode()
+	}
+	resq, err := http.Get(uri + params)
 	if err != nil {
 		return nil, err
 	}

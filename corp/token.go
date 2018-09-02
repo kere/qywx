@@ -48,7 +48,7 @@ func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
 
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
-	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.Corpid, agent.Secret))
+	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.Corpid, agent.Secret), nil)
 	if err != nil {
 		return "", 0, err
 	}

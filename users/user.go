@@ -43,7 +43,7 @@ type UserDetail struct {
 // WxUser func
 func WxUser(userID, token string) (UserDetail, error) {
 	var usr UserDetail
-	dat, err := client.Get(fmt.Sprintf(userGetURL, token, userID))
+	dat, err := client.Get(fmt.Sprintf(userGetURL, token, userID), nil)
 	if err != nil {
 		return usr, err
 	}

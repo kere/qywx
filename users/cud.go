@@ -58,6 +58,6 @@ func WxDelete(userid, token string) error {
 		return errors.New("删除操作的用户的UserID不能为空")
 	}
 
-	_, err := client.Get(fmt.Sprintf(userDeleteURL, token, userid))
+	_, err := client.Get(fmt.Sprintf(userDeleteURL, token, userid), nil)
 	return err
 }

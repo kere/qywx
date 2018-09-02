@@ -56,7 +56,7 @@ func (t *ticketCached) Build(args ...interface{}) (interface{}, int, error) {
 
 	// 获取 access_ticket
 	// 请求方式：GET（HTTPS）
-	dat, err := client.Get(fmt.Sprintf(ticketURL, token))
+	dat, err := client.Get(fmt.Sprintf(ticketURL, token), nil)
 	if err != nil {
 		return "", 0, err
 	}

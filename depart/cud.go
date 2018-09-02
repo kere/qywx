@@ -60,7 +60,7 @@ func WxDelete(id int, token string) error {
 		return errors.New("删除部门ID等于0")
 	}
 
-	_, err := client.Get(fmt.Sprintf(departDelteURL, token, id))
+	_, err := client.Get(fmt.Sprintf(departDelteURL, token, id), nil)
 	ClearDepart()
 	return err
 }

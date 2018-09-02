@@ -35,7 +35,7 @@ func WxAdd(tagname, token string) (int, error) {
 func WxTags(token string) ([]Tag, error) {
 	tags := make([]Tag, 0)
 
-	dat, err := client.Get(fmt.Sprintf(tagListURL, token))
+	dat, err := client.Get(fmt.Sprintf(tagListURL, token), nil)
 	if err != nil {
 		return tags, err
 	}
@@ -62,7 +62,7 @@ type User struct {
 
 // WxTagUsers 只列出标签，不抓取部门下的用户
 func WxTagUsers(tagid int, token string) (tagname string, usrs []User, partyIds []int, err error) {
-	dat, err := client.Get(fmt.Sprintf(tagGetURL, token, tagid))
+	dat, err := client.Get(fmt.Sprintf(tagGetURL, token, tagid), nil)
 	if err != nil {
 		return tagname, usrs, partyIds, err
 	}

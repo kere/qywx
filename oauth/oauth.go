@@ -37,7 +37,7 @@ func (o *OAuth) OpenAndRedirect(rw http.ResponseWriter, req *http.Request, redir
 // 请求方式：GET（HTTPS）
 func (o *OAuth) GetUserInfo(accessToken, code string) (usr UserInfo, err error) {
 	url := fmt.Sprintf(userInfoURL, accessToken, code)
-	dat, err := client.Get(url)
+	dat, err := client.Get(url, nil)
 	if err != nil {
 		return usr, err
 	}
