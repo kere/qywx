@@ -13,41 +13,26 @@ const (
 	sendURL = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
 )
 
-// Message class
-type Message struct {
-	Agent   *corp.Agent
-	ToUser  []string
-	ToParty []string
-	ToTag   []string
-	MsgType string
-	Value   map[string]string
-	Safe    int
-}
-
-// NewMessage func
-func NewMessage(agent *corp.Agent, touser, topart, totab []string) *Message {
-	return &Message{Agent: agent, ToUser: touser, ToParty: topart, ToTag: totab}
-}
-
-// Send text
-func (m *Message) Send(txt string) (utilib.MapData, error) {
-	msgType := "text"
-
-	touser := strings.Join(m.ToUser, "|")
-	topart := strings.Join(m.ToParty, "|")
-	totag := strings.Join(m.ToTag, "|")
+// SendText text
+// ToUser  []string
+// ToParty []string
+// ToTag   []string
+func SendText(agent *corp.Agent, txt string, toUsers, toParty, toTags []string) (utilib.MapData, error) {
+	touser := strings.Join(toUsers, "|")
+	topart := strings.Join(toParty, "|")
+	totag := strings.Join(toTags, "|")
 
 	dat := utilib.MapData{
 		"touser":  touser,
 		"topart":  topart,
 		"totag":   totag,
-		"msgtype": msgType,
+		"msgtype": "text",
 		"text": utilib.MapData{
 			"content": txt,
 		},
-		"agentid": m.Agent.Agentid}
+		"agentid": agent.Agentid}
 
-	token, err := m.Agent.GetToken()
+	token, err := agent.GetToken()
 	if err != nil {
 		return nil, err
 	}
