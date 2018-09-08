@@ -72,20 +72,21 @@ func AuthWxURL(req *http.Request, corpID, token, aeskey string) string {
 	timestamp := req.FormValue("timestamp")
 	nonce := req.FormValue("nonce")
 	echostr := req.FormValue("echostr")
+
 	// 企业计算签名：dev_msg_signature=sha1(sort(token、timestamp、nonce、msg_encrypt))。sort的含义是将参数值按照字母字典排序，然后从小到大拼接成一个字符串
 	devSign := Signature(token, timestamp, nonce, echostr)
 	if devSign != sign {
-		log.App.Debug("AuthWxURL:", devSign, sign)
+		log.App.Debug("AuthWxURL failed:", devSign, sign)
 		return ""
 	}
 
 	_, rawMsg, err := DecryptMsg(corpID, echostr, aeskey)
 	if err != nil {
-		log.App.Debug("AuthWxURL:", err)
+		log.App.Debug("AuthWxURL error:", err)
 		return ""
 	}
 
-	return fmt.Sprintf("%s", rawMsg)
+	return string(rawMsg)
 }
 
 // WriteXML 写入xml信息
