@@ -36,10 +36,10 @@ func (c *Corporation) GetAgent(name string) (*Agent, error) {
 	if a, isok := c.AgentMap[name]; isok {
 		return a, nil
 	}
-	return nil, errors.New("agent name not found")
+	return nil, errors.New("agent name not found:" + name)
 }
 
-// GetAgentByAgentidID return *Agent
+// GetAgentByAgentid return *Agent
 func (c *Corporation) GetAgentByAgentid(id int) *Agent {
 	for _, a := range c.AgentMap {
 		if a.Agentid == id {
