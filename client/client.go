@@ -4,10 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 
 	"github.com/kere/gno/libs/log"
 	"github.com/kere/gno/libs/util"
@@ -37,9 +35,9 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 
 	switch method {
 	case "GET":
-		body, err = get(uri, dat)
+		body, err = util.AjaxGet(uri, dat)
 	case "POST":
-		body, err = post(uri, dat)
+		body, err = util.AjaxPost(uri, dat)
 	case "PostJson":
 		body, err = postJSON(uri, dat)
 	}
@@ -62,38 +60,38 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 	return v, nil
 }
 
-func get(uri string, dat util.MapData) ([]byte, error) {
-	params := ""
-	if dat != nil {
-		vals := url.Values{}
-		for k, v := range dat {
-			vals.Add(k, fmt.Sprint(v))
-		}
-		params = "?" + vals.Encode()
-	}
-	resq, err := http.Get(uri + params)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resq.Body.Close()
-	return ioutil.ReadAll(resq.Body)
-}
-
-func post(uri string, dat util.MapData) ([]byte, error) {
-	vals := url.Values{}
-	for k, v := range dat {
-		vals[k] = []string{fmt.Sprint(v)}
-	}
-
-	resq, err := http.PostForm(uri, vals)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resq.Body.Close()
-	return ioutil.ReadAll(resq.Body)
-}
+// func get(uri string, dat util.MapData) ([]byte, error) {
+// 	params := ""
+// 	if dat != nil {
+// 		vals := url.Values{}
+// 		for k, v := range dat {
+// 			vals.Add(k, fmt.Sprint(v))
+// 		}
+// 		params = "?" + vals.Encode()
+// 	}
+// 	resq, err := http.Get(uri + params)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	defer resq.Body.Close()
+// 	return ioutil.ReadAll(resq.Body)
+// }
+//
+// func post(uri string, dat util.MapData) ([]byte, error) {
+// 	vals := url.Values{}
+// 	for k, v := range dat {
+// 		vals[k] = []string{fmt.Sprint(v)}
+// 	}
+//
+// 	resq, err := http.PostForm(uri, vals)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	defer resq.Body.Close()
+// 	return ioutil.ReadAll(resq.Body)
+// }
 
 func postJSON(uri string, dat util.MapData) ([]byte, error) {
 	src, err := json.Marshal(dat)
