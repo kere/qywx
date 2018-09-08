@@ -201,7 +201,6 @@ func row2agent(c *Corporation, row db.DataRow) *Agent {
 		Corp:      c,
 		ID:        row.Int("id"),
 		Agentid:   row.Int("agentid"),
-		App:       row.Int("app"),
 		Name:      row.String("name"),
 		Secret:    row.String("secret"),
 		ParentID:  row.IntDefault("parent_id", 0),
