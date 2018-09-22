@@ -2,7 +2,6 @@ package util
 
 import (
 	"crypto/sha1"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"math/rand"
@@ -15,9 +14,7 @@ import (
 )
 
 var (
-	xmlContentType   = []string{"text/xml; charset=utf-8"}
-	plainContentType = []string{"text/plain; charset=utf-8"}
-	expiresVal       = 0
+	expiresVal = 0
 )
 
 // Expires int
@@ -52,17 +49,9 @@ func RandomStr(length int) string {
 	return string(result)
 }
 
-// WriteContextType func
-func WriteContextType(w http.ResponseWriter, headers []string) {
-	header := w.Header()
-	if val := header["Content-Type"]; len(val) == 0 {
-		header["Content-Type"] = headers
-	}
-}
-
 // AuthWxURL 微信消息接口验证
 // 如果成功，返回 解密后的 字符串;不成功，返回空字符串
-func AuthWxURL(req *http.Request, corpID, token, aeskey string) string {
+func AuthWxURL(req *http.Request, corpid, token, aeskey string) string {
 	log.App.Debug("auth get", req.URL.String())
 	// msg_signature: 企业微信加密签名，msg_signature结合了企业填写的token、请求中的timestamp、nonce参数、加密的消息体
 	// timestamp: 时间戳
@@ -80,40 +69,11 @@ func AuthWxURL(req *http.Request, corpID, token, aeskey string) string {
 		return ""
 	}
 
-	_, rawMsg, err := DecryptMsg(corpID, echostr, aeskey)
+	_, rawMsg, err := DecryptMsg(corpid, echostr, aeskey)
 	if err != nil {
 		log.App.Debug("AuthWxURL error:", err)
 		return ""
 	}
 
 	return string(rawMsg)
-}
-
-// WriteXML 写入xml信息
-func WriteXML(w http.ResponseWriter, obj interface{}) {
-	if obj == nil {
-		return
-	}
-
-	WriteContextType(w, xmlContentType)
-	bytes, err := xml.Marshal(obj)
-	if err != nil {
-		panic(err)
-	}
-
-	w.WriteHeader(200)
-	_, err = w.Write(bytes)
-	if err != nil {
-		panic(err)
-	}
-}
-
-// WriteString 写入string信息
-func WriteString(w http.ResponseWriter, txt string) {
-	WriteContextType(w, plainContentType)
-	w.WriteHeader(200)
-	_, err := w.Write([]byte(txt))
-	if err != nil {
-		panic(err)
-	}
 }

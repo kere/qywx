@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -11,98 +12,141 @@ import (
 	"github.com/kere/qywx/util"
 )
 
-// ReplyMessageCall func
-type ReplyMessageCall func(msg MixMessage) (ICommonMessage, error)
+var (
+	xmlContentType   = []string{"text/xml; charset=utf-8"}
+	plainContentType = []string{"text/plain; charset=utf-8"}
+)
+
+// // ReplyMessageCall func
+// type ReplyMessageCall func(msg MixMessage) (ICommonMessage, error)
 
 // Context for message
 type Context struct {
-	Writer                http.ResponseWriter
-	Request               *http.Request
-	Nonce                 string
-	CorpID, Token, AesKey string
+	Writer               http.ResponseWriter
+	Request              *http.Request
+	Nonce                string
+	Random               []byte
+	Timestamp            string
+	AppID, Token, AesKey string
+	IsSafe               bool
 
 	MixMessage MixMessage
 }
 
 // NewContext func
-func NewContext(w http.ResponseWriter, req *http.Request, corpID, token, aeskey string) Context {
-	return Context{Writer: w, Request: req, CorpID: corpID, AesKey: aeskey, Token: token}
+func NewContext(w http.ResponseWriter, req *http.Request, appid, token, aeskey string) Context {
+	return Context{Writer: w, Request: req, AppID: appid, AesKey: aeskey, Token: token}
 }
 
 // ParsePost 解析微信消息
 func (c *Context) ParsePost() ([]byte, error) {
 	req := c.Request
 
-	var eXML EncryptedXMLMsg
-	err := xml.NewDecoder(req.Body).Decode(&eXML)
-	if err != nil {
-		return nil, err
+	var rawMsg []byte
+	var err error
+	if !c.IsSafe {
+		c.IsSafe = req.FormValue("encrypt_type") == "aes"
 	}
 
-	sign := req.FormValue("msg_signature")
-	timestamp := req.FormValue("timestamp")
-	nonce := req.FormValue("nonce")
+	if c.IsSafe {
+		var eXML EncryptedXMLMsg
+		err = xml.NewDecoder(req.Body).Decode(&eXML)
+		if err != nil {
+			return nil, err
+		}
 
-	devSign := util.Signature(c.Token, timestamp, nonce, eXML.EncryptedMsg)
-	if devSign != sign {
-		return nil, errors.New("sign failed")
+		sign := req.FormValue("msg_signature")
+		c.Timestamp = req.FormValue("timestamp")
+		c.Nonce = req.FormValue("nonce")
+
+		devSign := util.Signature(c.Token, c.Timestamp, c.Nonce, eXML.EncryptedMsg)
+		if devSign != sign {
+			return nil, errors.New("sign failed")
+		}
+
+		c.Random, rawMsg, err = util.DecryptMsg(c.AppID, eXML.EncryptedMsg, c.AesKey)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		rawMsg, err = ioutil.ReadAll(req.Body)
+		if err != nil {
+			return nil, fmt.Errorf("从body中解析xml失败, err=%v", err)
+		}
 	}
 
-	_, rawMsg, err := util.DecryptMsg(c.CorpID, eXML.EncryptedMsg, c.AesKey)
-	if err != nil {
-		return nil, err
-	}
-	c.Nonce = nonce
-
-	// log.App.Debug(string(rawMsg))
 	err = xml.Unmarshal(rawMsg, &c.MixMessage)
 	return rawMsg, err
 }
 
-// SendBy 发送自定义回复
-func (c *Context) SendBy(f ReplyMessageCall) error {
-	if c.MixMessage.ToUserName == "" {
+// Send 发送自定义回复
+func (c Context) Send(msg IMessage) error {
+	if msg.GetMsgType() == "" {
 		return nil
 	}
 
-	msg, err := f(c.MixMessage)
-	if err != nil {
-		return err
-	}
+	if c.IsSafe {
+		src, err := xml.Marshal(msg)
+		if err != nil {
+			return err
+		}
 
-	msg.SetCreateTime(time.Now().Unix())
-	msg.SetFromUserName(c.CorpID)
-	msg.SetToUserName(c.MixMessage.FromUserName)
+		src, err = util.EncryptMsg(c.Random, src, c.AppID, c.AesKey)
+		if err != nil {
+			return err
+		}
 
-	rmsg, err := c.buildResponseEncryptedMsg(msg)
-	if err != nil {
-		return err
+		ts := msg.GetCreateTime()
+		if ts == 0 {
+			ts = time.Now().Unix()
+		}
+		replyMsg := ResponseEncryptedXMLMsg{
+			Nonce:     c.Nonce,
+			Timestamp: ts,
+		}
+
+		encrypted := string(src)
+		replyMsg.MsgSignature = util.Signature(c.Token, fmt.Sprint(replyMsg.Timestamp), replyMsg.Nonce, encrypted)
+		replyMsg.EncryptedMsg = encrypted
+
+		c.RenderXML(replyMsg)
+
+	} else {
+		c.RenderXML(msg)
 	}
 
 	log.App.Debug("sendmsg:", c.MixMessage.ToUserName)
-	util.WriteXML(c.Writer, rmsg)
 	return nil
 }
 
-// BuildResponseEncryptedMsg 返回创建好的 ResponseEncryptedXMLMsg
-func (c *Context) buildResponseEncryptedMsg(v interface{}) (replyMsg ResponseEncryptedXMLMsg, err error) {
-	unix := time.Now().Unix()
-	replyMsg.Nonce = c.Nonce
-	replyMsg.Timestamp = unix
-
-	src, err := xml.Marshal(v)
+//Render render from bytes
+func (c Context) Render(bytes []byte) {
+	c.Writer.WriteHeader(200)
+	_, err := c.Writer.Write(bytes)
 	if err != nil {
-		return replyMsg, err
+		panic(err)
 	}
+}
 
-	src, err = util.EncryptMsg([]byte(c.Nonce), src, c.CorpID, c.AesKey)
+//RenderString render from string
+func (c Context) RenderString(str string) {
+	writeContextType(c.Writer, plainContentType)
+	c.Render([]byte(str))
+}
+
+//RenderXML render to xml
+func (c Context) RenderXML(obj interface{}) {
+	writeContextType(c.Writer, xmlContentType)
+	bytes, err := xml.Marshal(obj)
 	if err != nil {
-		return replyMsg, err
+		panic(err)
 	}
+	c.Render(bytes)
+}
 
-	encrypted := string(src)
-	replyMsg.MsgSignature = util.Signature(c.Token, fmt.Sprint(replyMsg.Timestamp), replyMsg.Nonce, encrypted)
-
-	replyMsg.EncryptedMsg = encrypted
-	return replyMsg, err
+func writeContextType(w http.ResponseWriter, value []string) {
+	header := w.Header()
+	if val := header["Content-Type"]; len(val) == 0 {
+		header["Content-Type"] = value
+	}
 }

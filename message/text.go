@@ -7,10 +7,10 @@ type Text struct {
 }
 
 //NewText 初始化文本消息
-func NewText(content string) *Text {
-	text := new(Text)
+func NewText(content string) Text {
+	text := Text{}
 	text.Content = content
-	text.SetMsgType(MsgTypeText)
+	text.MsgType = MsgTypeText
 
 	return text
 }

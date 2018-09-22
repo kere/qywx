@@ -59,5 +59,6 @@ func (t *cachedUserMap) Build(args ...interface{}) (interface{}, int, error) {
 		return nil, 0, err
 	}
 
-	return dat, util.Expires(), nil
+	expires := util.Expires()
+	return dat, expires, nil
 }

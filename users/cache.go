@@ -39,7 +39,7 @@ func CacheKey(agent *corp.Agent, uid string) string {
 
 // CacheGetUser detail
 func CacheGetUser(agent *corp.Agent, uid string) (usr UserDetail) {
-	src, _ := cache.Get(CacheKey(agent, uid))
+	src, _ := cache.GetString(CacheKey(agent, uid))
 	if len(src) == 0 {
 		return usr
 	}
