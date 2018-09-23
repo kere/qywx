@@ -40,7 +40,7 @@ func MenuCreate(appid, appsecret string, opt interface{}) error {
 		return err
 	}
 	uri := fmt.Sprintf(WxURL("MenuCreate"), token)
-	_, err = client.PostJSON(uri, nil)
+	_, err = client.PostJSON(uri, opt)
 	return err
 }
 

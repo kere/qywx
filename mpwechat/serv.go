@@ -39,18 +39,15 @@ func (srv *Serv) AddExec(exec IExec) {
 
 //Auth 验证
 func (srv *Serv) Auth(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	fmt.Println(req.URL.String())
-	fmt.Println("auth ---------- url ")
 	s := AuthWxURL(req, srv.Token)
 	rw.Write([]byte(s))
 }
 
 //MessageHandle 处理微信的请求
 func (srv *Serv) MessageHandle(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	fmt.Println(req.URL.String())
 	ctx := message.NewContext(rw, req, srv.AppID, srv.AppSecret, srv.Token, srv.AesKey)
 	ctx.IsSafe = srv.IsSafe
-
-	fmt.Println(req.URL.String())
 
 	_, err := ctx.ParsePost()
 	if err != nil {

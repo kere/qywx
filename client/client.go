@@ -13,51 +13,66 @@ import (
 
 // Get unmarshal body and reture mapdata
 func Get(uri string, dat util.MapData) (util.MapData, error) {
-	return send("GET", uri, dat)
+	body, err := util.AjaxGet(uri, dat)
+	if err != nil {
+		return nil, err
+	}
+	log.App.Debug(uri)
+	return parseBody(body)
 }
 
 // PostForm unmarshal body and reture mapdata
 func PostForm(uri string, dat util.MapData) (util.MapData, error) {
-	return send("POST", uri, dat)
-}
-
-// PostJSON func
-func PostJSON(uri string, dat util.MapData) (util.MapData, error) {
-	return send("PostJson", uri, dat)
-}
-
-// send unmarshal body and reture mapdata
-func send(method, uri string, dat util.MapData) (util.MapData, error) {
-	var body []byte
-	var err error
-
-	log.App.Debug(method, uri)
-
-	switch method {
-	case "GET":
-		body, err = util.AjaxGet(uri, dat)
-	case "POST":
-		body, err = util.AjaxPost(uri, dat)
-	case "PostJson":
-		body, err = postJSON(uri, dat)
-	}
+	body, err := util.AjaxPost(uri, dat)
 	if err != nil {
 		return nil, err
 	}
+	log.App.Debug(uri)
+	return parseBody(body)
+}
 
+// PostJSON func
+func PostJSON(uri string, dat interface{}) (util.MapData, error) {
+	body, err := postJSON(uri, dat)
+	if err != nil {
+		return nil, err
+	}
+	log.App.Debug(uri)
+	return parseBody(body)
+}
+
+// parseBody unmarshal body and reture mapdata
+func parseBody(body []byte) (util.MapData, error) {
 	var v util.MapData
-	err = json.Unmarshal(body, &v)
+	err := json.Unmarshal(body, &v)
 	if err != nil {
 		return nil, err
 	}
 
 	if v.IsSet("errcode") && v.Int("errcode") != 0 {
-		return nil, errors.New(v.String("errmsg"))
+		return nil, errors.New(v.String("errcode") + ":" + v.String("errmsg"))
 	}
 
-	log.App.Debug(method, v)
-
 	return v, nil
+}
+
+func postJSON(uri string, dat interface{}) ([]byte, error) {
+	src, err := json.Marshal(dat)
+	if err != nil {
+		return nil, err
+	}
+
+	src = bytes.Replace(src, []byte("\\u003c"), []byte("<"), -1)
+	src = bytes.Replace(src, []byte("\\u003e"), []byte(">"), -1)
+	src = bytes.Replace(src, []byte("\\u0026"), []byte("&"), -1)
+
+	resp, err := http.Post(uri, "application/json;charset=utf-8", bytes.NewReader(src))
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	return ioutil.ReadAll(resp.Body)
 }
 
 // func get(uri string, dat util.MapData) ([]byte, error) {
@@ -92,18 +107,3 @@ func send(method, uri string, dat util.MapData) (util.MapData, error) {
 // 	defer resq.Body.Close()
 // 	return ioutil.ReadAll(resq.Body)
 // }
-
-func postJSON(uri string, dat util.MapData) ([]byte, error) {
-	src, err := json.Marshal(dat)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.Post(uri, "application/json", bytes.NewReader(src))
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
-}
