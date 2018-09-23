@@ -22,20 +22,20 @@ var (
 
 // Context for message
 type Context struct {
-	Writer               http.ResponseWriter
-	Request              *http.Request
-	Nonce                string
-	Random               []byte
-	Timestamp            string
-	AppID, Token, AesKey string
-	IsSafe               bool
+	Writer                          http.ResponseWriter
+	Request                         *http.Request
+	Nonce                           string
+	Random                          []byte
+	Timestamp                       string
+	AppID, AppSecret, Token, AesKey string
+	IsSafe                          bool
 
 	MixMessage MixMessage
 }
 
 // NewContext func
-func NewContext(w http.ResponseWriter, req *http.Request, appid, token, aeskey string) Context {
-	return Context{Writer: w, Request: req, AppID: appid, AesKey: aeskey, Token: token}
+func NewContext(w http.ResponseWriter, req *http.Request, appid, appsecret, token, aeskey string) Context {
+	return Context{Writer: w, Request: req, AppID: appid, AppSecret: appsecret, AesKey: aeskey, Token: token}
 }
 
 // ParsePost 解析微信消息

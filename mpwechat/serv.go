@@ -16,9 +16,10 @@ type IExec interface {
 
 // Serv message
 type Serv struct {
-	AppID  string
-	Token  string
-	AesKey string
+	AppID     string
+	AppSecret string
+	Token     string
+	AesKey    string
 
 	IsSafe bool
 
@@ -26,8 +27,8 @@ type Serv struct {
 }
 
 // NewServ func
-func NewServ(appid, token, aeskey string) *Serv {
-	return &Serv{AppID: appid, Token: token, AesKey: aeskey}
+func NewServ(appid, appsecret, token, aeskey string) *Serv {
+	return &Serv{AppID: appid, AppSecret: appsecret, Token: token, AesKey: aeskey}
 }
 
 //AddExec 添加处理模块
@@ -43,7 +44,7 @@ func (srv *Serv) Auth(rw http.ResponseWriter, req *http.Request, ps httprouter.P
 
 //MessageHandle 处理微信的请求
 func (srv *Serv) MessageHandle(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	ctx := message.NewContext(rw, req, srv.AppID, srv.Token, srv.AesKey)
+	ctx := message.NewContext(rw, req, srv.AppID, srv.AppSecret, srv.Token, srv.AesKey)
 	ctx.IsSafe = srv.IsSafe
 
 	_, err := ctx.ParsePost()
