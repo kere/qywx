@@ -5,10 +5,12 @@ var (
 	apihttp   = "https://"
 )
 var apiurls = map[string]string{
-	"Token":      "api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
-	"MenuCreate": "api.weixin.qq.com/cgi-bin/menu/create?access_token=%s",
-	"MenuGet":    "api.weixin.qq.com/cgi-bin/menu/get?access_token=%s",
-	"MenuDelete": "api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s",
+	"Token":       "api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s",
+	"MenuCreate":  "api.weixin.qq.com/cgi-bin/menu/create?access_token=%s",
+	"MenuGet":     "api.weixin.qq.com/cgi-bin/menu/get?access_token=%s",
+	"MenuDelete":  "api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s",
+	"UserInfo":    "api.weixin.qq.com/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN",
+	"GetJSTicket": "api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=%s&type=jsapi",
 }
 
 // SetAPIArea 设置API的区域

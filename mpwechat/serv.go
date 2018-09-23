@@ -1,6 +1,7 @@
 package mpwechat
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -38,6 +39,8 @@ func (srv *Serv) AddExec(exec IExec) {
 
 //Auth 验证
 func (srv *Serv) Auth(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	fmt.Println(req.URL.String())
+	fmt.Println("auth ---------- url ")
 	s := AuthWxURL(req, srv.Token)
 	rw.Write([]byte(s))
 }
@@ -47,11 +50,15 @@ func (srv *Serv) MessageHandle(rw http.ResponseWriter, req *http.Request, ps htt
 	ctx := message.NewContext(rw, req, srv.AppID, srv.AppSecret, srv.Token, srv.AesKey)
 	ctx.IsSafe = srv.IsSafe
 
+	fmt.Println(req.URL.String())
+
 	_, err := ctx.ParsePost()
 	if err != nil {
 		log.App.Error(err)
 		return
 	}
+
+	log.App.Debug(ctx.MixMessage.GetMsgType(), ctx.MixMessage.Event, ctx.MixMessage.Content)
 
 	// exec replies
 	for _, exec := range srv.Execs {
