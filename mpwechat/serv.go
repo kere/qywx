@@ -1,7 +1,6 @@
 package mpwechat
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -45,7 +44,6 @@ func (srv *Serv) Auth(rw http.ResponseWriter, req *http.Request, ps httprouter.P
 
 //MessageHandle 处理微信的请求
 func (srv *Serv) MessageHandle(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
-	fmt.Println(req.URL.String())
 	ctx := message.NewContext(rw, req, srv.AppID, srv.AppSecret, srv.Token, srv.AesKey)
 	ctx.IsSafe = srv.IsSafe
 
