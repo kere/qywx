@@ -33,7 +33,7 @@ type DepartsMap struct {
 
 func newDepartsMap() *DepartsMap {
 	t := &DepartsMap{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -47,24 +47,25 @@ func GetDeparts(corpIndex int, departID int) []Department {
 }
 
 // Build func
-func (t *DepartsMap) Build(args ...interface{}) (interface{}, int, error) {
+func (t *DepartsMap) Build(args ...interface{}) (interface{}, error) {
 	corpIndex := args[0].(int)
 	departID := args[1].(int)
 
 	cp := corp.Get(corpIndex)
 	if cp == nil {
-		return nil, 0, errors.New("corp not found in departCached")
+		return nil, errors.New("corp not found in departCached")
 	}
 
 	token, err := cp.GetContactToken()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	dat, err := WxDepartments(departID, token)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	return dat, util.Expires(), nil
+	t.SetExpires(util.Expires())
+	return dat, nil
 }

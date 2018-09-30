@@ -14,7 +14,7 @@ type tokenContactCached struct {
 
 func newTokenContactCached() *tokenContactCached {
 	t := &tokenContactCached{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -24,23 +24,24 @@ func (t *tokenContactCached) CheckValue(v interface{}) bool {
 }
 
 // Build func
-func (t *tokenContactCached) Build(args ...interface{}) (interface{}, int, error) {
+func (t *tokenContactCached) Build(args ...interface{}) (interface{}, error) {
 	corpName := args[0].(string)
 
 	cp, err := GetByName(corpName)
 	if err != nil {
-		return nil, 0, errors.New("corp not found in tokenContactCached")
+		return nil, errors.New("corp not found in tokenContactCached")
 	}
 
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
 	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.Corpid, cp.ContactsSecret), nil)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 
+	t.SetExpires(dat.Int("expires_in"))
 	// v = newToken(dat.String("access_token"), dat.Int("expires_in"))
-	return dat.String("access_token"), dat.Int("expires_in"), nil
+	return dat.String("access_token"), nil
 }
 
 // map[agentID] *tokenContactCached

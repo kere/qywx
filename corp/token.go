@@ -21,7 +21,7 @@ type tokenCached struct {
 
 func newTokenCached() *tokenCached {
 	t := &tokenCached{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -31,7 +31,7 @@ func (t *tokenCached) CheckValue(v interface{}) bool {
 }
 
 // Build func
-func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
+func (t *tokenCached) Build(args ...interface{}) (interface{}, error) {
 	// CorpID: corpID, AgentSecret: secret
 	// corpID := args[0].(string)
 	corpName := args[0].(string)
@@ -39,22 +39,23 @@ func (t *tokenCached) Build(args ...interface{}) (interface{}, int, error) {
 	// cp := GetByID(corpID)
 	cp, err := GetByName(corpName)
 	if err != nil {
-		return nil, 0, errors.New("corp not found in tokenCached")
+		return nil, errors.New("corp not found in tokenCached")
 	}
 	agent := cp.GetAgentByAgentid(agentID)
 	if agent == nil {
-		return nil, 0, errors.New("agent not found in tokenCached")
+		return nil, errors.New("agent not found in tokenCached")
 	}
 
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
 	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.Corpid, agent.Secret), nil)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 
+	t.SetExpires(dat.Int("expires_in"))
 	// v = newToken(dat.String("access_token"), dat.Int("expires_in"))
-	return dat.String("access_token"), dat.Int("expires_in"), nil
+	return dat.String("access_token"), nil
 }
 
 // map[agentID] *tokenCached

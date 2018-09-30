@@ -21,7 +21,7 @@ type cachedUserMap struct {
 
 func newCachedUserMap() *cachedUserMap {
 	t := &cachedUserMap{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -40,25 +40,25 @@ func ReleaseUserCache(corpIndex int, userid string) {
 }
 
 // Build func
-func (t *cachedUserMap) Build(args ...interface{}) (interface{}, int, error) {
+func (t *cachedUserMap) Build(args ...interface{}) (interface{}, error) {
 	corpIndex := args[0].(int)
 	userid := args[1].(string)
 
 	cp := corp.Get(corpIndex)
 	if cp == nil {
-		return nil, 0, errors.New("corp not found in departCached")
+		return nil, errors.New("corp not found in departCached")
 	}
 
 	token, err := cp.GetContactToken()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	dat, err := WxUser(userid, token)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
-	expires := util.Expires()
-	return dat, expires, nil
+	t.SetExpires(util.Expires())
+	return dat, nil
 }

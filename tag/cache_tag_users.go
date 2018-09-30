@@ -28,7 +28,7 @@ type TagGet struct {
 
 func newTagUsersMap() *TagUsersMap {
 	t := &TagUsersMap{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -48,17 +48,17 @@ func ClearTag() {
 }
 
 // Build func
-func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
+func (t *TagUsersMap) Build(args ...interface{}) (interface{}, error) {
 	corpid := args[0].(string)
 	agentName := args[1].(string)
 	tagname := args[2].(string)
 
 	cp, err := corp.GetByCorpid(corpid)
 	if err != nil {
-		return nil, 0, errors.New("corp name not found")
+		return nil, errors.New("corp name not found")
 	}
 	if cp == nil {
-		return nil, 0, errors.New("corp not found in departCached")
+		return nil, errors.New("corp not found in departCached")
 	}
 	agent, err := cp.GetAgent(agentName)
 	var token string
@@ -69,35 +69,30 @@ func (t *TagUsersMap) Build(args ...interface{}) (interface{}, int, error) {
 	}
 
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	tags := GetTags(corpid)
 	l := len(tags)
 	if l == 0 {
-		return nil, 0, err
+		return nil, err
 	}
 
 	for i := 0; i < l; i++ {
 		if tags[i].Name == tagname {
 			_, usrs, partyIds, err := WxTagUsers(tags[i].ID, token)
 			if err != nil {
-				return nil, 0, err
+				return nil, err
 			}
-
-			// departUsers := make([]depart.User, 0)
-			// for _, pid := range partyIds {
-			// 	if items := depart.GetDepartUsersByID(corpIndex, pid); len(items) > 0 {
-			// 		departUsers = append(departUsers, items...)
-			// 	}
-			//
-			// }
 
 			dat := &TagGet{UserList: usrs, PartyList: partyIds}
 
-			return dat, util.Expires(), nil
+			if t.GetExpires() == 0 {
+				t.SetExpires(util.Expires())
+			}
+			return dat, nil
 		}
 	}
 
-	return nil, 0, nil
+	return nil, nil
 }

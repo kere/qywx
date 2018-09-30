@@ -26,7 +26,7 @@ type ticketCached struct {
 
 func newTicketCached() *ticketCached {
 	t := &ticketCached{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -36,32 +36,33 @@ func (t *ticketCached) CheckValue(v interface{}) bool {
 }
 
 // Build func
-func (t *ticketCached) Build(args ...interface{}) (interface{}, int, error) {
+func (t *ticketCached) Build(args ...interface{}) (interface{}, error) {
 	corpName := args[0].(string)
 	agentID := args[1].(int)
 
 	cp, err := GetByName(corpName)
 	if err != nil {
-		return "", 0, errors.New("corp not found in tokenCached")
+		return "", errors.New("corp not found in tokenCached")
 	}
 	agent := cp.GetAgentByAgentid(agentID)
 	if agent == nil {
-		return "", 0, errors.New("agent not found in tokenCached")
+		return "", errors.New("agent not found in tokenCached")
 	}
 
 	token, err := agent.GetToken()
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
 
 	// 获取 access_ticket
 	// 请求方式：GET（HTTPS）
 	dat, err := client.Get(fmt.Sprintf(ticketURL, token), nil)
 	if err != nil {
-		return "", 0, err
+		return "", err
 	}
+	t.SetExpires(dat.Int("expires_in"))
 
-	return dat.String("ticket"), dat.Int("expires_in"), nil
+	return dat.String("ticket"), nil
 }
 
 // map[corpid] *ticketCached

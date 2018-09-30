@@ -21,7 +21,7 @@ type TagMap struct {
 
 func newTagMap() *TagMap {
 	t := &TagMap{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -52,28 +52,28 @@ func GetTagByname(corpid, name string) Tag {
 }
 
 // Build func
-func (t *TagMap) Build(args ...interface{}) (interface{}, int, error) {
+func (t *TagMap) Build(args ...interface{}) (interface{}, error) {
 	corpid := args[0].(string)
 
 	cp, err := corp.GetByCorpid(corpid)
 	if err != nil {
-		return nil, 0, errors.New("corp name not found")
+		return nil, errors.New("corp name not found")
 	}
 	if cp == nil {
-		return nil, 0, errors.New("corp not found in departCached")
+		return nil, errors.New("corp not found in departCached")
 	}
 
 	token, err := cp.GetContactToken()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	dat, err := WxTags(token)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
-
-	return dat, util.Expires(), nil
+	t.SetExpires(util.Expires())
+	return dat, nil
 }
 
 // IsUserInTag 用户是否属于当前标签

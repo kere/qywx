@@ -22,7 +22,7 @@ type DepartUsersMap struct {
 
 func newDepartUsersMap() *DepartUsersMap {
 	t := &DepartUsersMap{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -49,21 +49,22 @@ func ClearDepart() {
 }
 
 // Build func
-func (t *DepartUsersMap) Build(args ...interface{}) (interface{}, int, error) {
+func (t *DepartUsersMap) Build(args ...interface{}) (interface{}, error) {
 	corpID := args[0].(int)
 	departID := args[1].(int)
 
 	cp := corp.Get(corpID)
 	if cp == nil {
-		return nil, 0, errors.New("corp not found in departCached")
+		return nil, errors.New("corp not found in departCached")
 	}
 
 	token, err := cp.GetContactToken()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	usrs, err := WxDepartUsers(departID, true, token)
 
-	return usrs, util.Expires(), err
+	t.SetExpires(util.Expires())
+	return usrs, err
 }

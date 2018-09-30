@@ -19,7 +19,7 @@ type DepartSimpleUsersMap struct {
 
 func newDepartSimpleUsersMap() *DepartSimpleUsersMap {
 	t := &DepartSimpleUsersMap{}
-	t.Init(t)
+	t.Init(t, 0)
 	return t
 }
 
@@ -53,21 +53,22 @@ func GetDepartSimpleUsers(corpIndex int, departName string) []User {
 }
 
 // Build func
-func (t *DepartSimpleUsersMap) Build(args ...interface{}) (interface{}, int, error) {
+func (t *DepartSimpleUsersMap) Build(args ...interface{}) (interface{}, error) {
 	corpID := args[0].(int)
 	departID := args[1].(int)
 
 	cp := corp.Get(corpID)
 	if cp == nil {
-		return nil, 0, errors.New("corp not found in departCached")
+		return nil, errors.New("corp not found in departCached")
 	}
 
 	token, err := cp.GetContactToken()
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 
 	usrs, err := WxDepartSimpleUsers(departID, true, token)
 
-	return usrs, util.Expires(), err
+	t.SetExpires(util.Expires())
+	return usrs, err
 }
