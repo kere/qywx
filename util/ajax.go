@@ -1,4 +1,4 @@
-package client
+package util
 
 import (
 	"bytes"
@@ -6,14 +6,15 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/kere/gno/libs/log"
 	"github.com/kere/gno/libs/util"
 )
 
-// Get unmarshal body and reture mapdata
-func Get(uri string, dat util.MapData) (util.MapData, error) {
-	body, err := util.AjaxGet(uri, dat)
+// AjaxGet unmarshal body and reture mapdata
+func AjaxGet(uri string, vals url.Values) (util.MapData, error) {
+	body, err := util.AjaxGet(uri, vals)
 	if err != nil {
 		return nil, err
 	}

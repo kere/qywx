@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/libs/cache"
-	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/util"
 )
 
 const (
@@ -48,7 +48,7 @@ func (t *tokenCached) Build(args ...interface{}) (interface{}, error) {
 
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
-	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.Corpid, agent.Secret), nil)
+	dat, err := util.AjaxGet(fmt.Sprintf(tokenURL, cp.Corpid, agent.Secret), nil)
 	if err != nil {
 		return "", err
 	}

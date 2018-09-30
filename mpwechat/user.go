@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/libs/util"
-	"github.com/kere/qywx/client"
+
+	wxutil "github.com/kere/qywx/util"
 )
 
 // WxUserInfo 获得微信用户信息
@@ -16,5 +17,5 @@ func WxUserInfo(appid, appsecret, openid string) (util.MapData, error) {
 
 	uri := fmt.Sprintf(WxURL("UserInfo"), acctoken, openid)
 
-	return client.Get(uri, nil)
+	return wxutil.AjaxGet(uri, nil)
 }

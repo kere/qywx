@@ -3,7 +3,7 @@ package corp
 import (
 	"fmt"
 
-	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/util"
 )
 
 const (
@@ -29,7 +29,7 @@ type AgentInfo struct {
 
 // WXAgentInfo 获得微信应用信息,企业仅可获取当前凭证对应的应用
 func WXAgentInfo(agentID int, token string) (a AgentInfo, err error) {
-	dat, err := client.Get(fmt.Sprintf(agentInfoURL, token, agentID), nil)
+	dat, err := util.AjaxGet(fmt.Sprintf(agentInfoURL, token, agentID), nil)
 	if err != nil {
 		return a, err
 	}

@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/kere/gno/libs/cache"
-	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/util"
 )
 
 const (
@@ -45,7 +45,7 @@ func WxAccessToken(appid, appsecret string) (string, error) {
 func loadAccessToken(appid, appsecret string) (string, int64, error) {
 	uri := fmt.Sprintf(WxURL("Token"), appid, appsecret)
 
-	dat, err := client.Get(uri, nil)
+	dat, err := util.AjaxGet(uri, nil)
 	if err != nil {
 		return "", 0, err
 	}

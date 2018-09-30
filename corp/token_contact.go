@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/libs/cache"
-	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/util"
 )
 
 type tokenContactCached struct {
@@ -34,7 +34,7 @@ func (t *tokenContactCached) Build(args ...interface{}) (interface{}, error) {
 
 	// 获取 access_token
 	// 请求方式：GET（HTTPS）
-	dat, err := client.Get(fmt.Sprintf(tokenURL, cp.Corpid, cp.ContactsSecret), nil)
+	dat, err := util.AjaxGet(fmt.Sprintf(tokenURL, cp.Corpid, cp.ContactsSecret), nil)
 	if err != nil {
 		return "", err
 	}

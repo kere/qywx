@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/libs/util"
-	"github.com/kere/qywx/client"
 	"github.com/kere/qywx/depart"
+	wxutil "github.com/kere/qywx/util"
 )
 
 const (
@@ -22,7 +22,7 @@ type Tag struct {
 
 // WxAdd Create 标签, return tagid
 func WxAdd(tagname, token string) (int, error) {
-	dat, err := client.PostJSON(fmt.Sprint(tagCreateURL, token), util.MapData{"tagname": tagname})
+	dat, err := wxutil.PostJSON(fmt.Sprint(tagCreateURL, token), util.MapData{"tagname": tagname})
 
 	if err != nil {
 		return 0, err
@@ -35,7 +35,7 @@ func WxAdd(tagname, token string) (int, error) {
 func WxTags(token string) ([]Tag, error) {
 	tags := make([]Tag, 0)
 
-	dat, err := client.Get(fmt.Sprintf(tagListURL, token), nil)
+	dat, err := wxutil.AjaxGet(fmt.Sprintf(tagListURL, token), nil)
 	if err != nil {
 		return tags, err
 	}
@@ -62,7 +62,7 @@ type User struct {
 
 // WxTagUsers 只列出标签，不抓取部门下的用户
 func WxTagUsers(tagid int, token string) (tagname string, usrs []User, partyIds []int, err error) {
-	dat, err := client.Get(fmt.Sprintf(tagGetURL, token, tagid), nil)
+	dat, err := wxutil.AjaxGet(fmt.Sprintf(tagGetURL, token, tagid), nil)
 	if err != nil {
 		return tagname, usrs, partyIds, err
 	}

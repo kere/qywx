@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/kere/gno/libs/cache"
-	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/util"
 )
 
 const (
@@ -46,7 +46,7 @@ func loadJSticket(appid, appsecret string) (string, int64, error) {
 		return "", 0, err
 	}
 	uri := fmt.Sprintf(WxURL("GetJSTicket"), token)
-	dat, err := client.Get(uri, nil)
+	dat, err := util.AjaxGet(uri, nil)
 	if err != nil {
 		return "", 0, err
 	}

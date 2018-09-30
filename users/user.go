@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/db"
-	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/util"
 )
 
 const (
@@ -43,7 +43,7 @@ type UserDetail struct {
 // WxUser func
 func WxUser(userID, token string) (UserDetail, error) {
 	var usr UserDetail
-	dat, err := client.Get(fmt.Sprintf(userGetURL, token, userID), nil)
+	dat, err := util.AjaxGet(fmt.Sprintf(userGetURL, token, userID), nil)
 	if err != nil {
 		return usr, err
 	}

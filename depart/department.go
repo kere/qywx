@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/libs/util"
-	"github.com/kere/qywx/client"
 	"github.com/kere/qywx/users"
+	wxutil "github.com/kere/qywx/util"
 )
 
 const (
@@ -32,7 +32,7 @@ func WxDepartments(departID int, token string) ([]Department, error) {
 		s = fmt.Sprint(departID)
 	}
 
-	dat, err := client.Get(fmt.Sprintf(departGetURL, token, s), nil)
+	dat, err := wxutil.AjaxGet(fmt.Sprintf(departGetURL, token, s), nil)
 	if err != nil {
 		return dptList, err
 	}
@@ -67,7 +67,7 @@ func WxDepartSimpleUsers(departID int, isChild bool, token string) ([]User, erro
 		isChildV = 1
 	}
 
-	dat, err := client.Get(fmt.Sprintf(departSimpleUsersURL, token, departID, isChildV), nil)
+	dat, err := wxutil.AjaxGet(fmt.Sprintf(departSimpleUsersURL, token, departID, isChildV), nil)
 	if err != nil {
 		return urs, err
 	}
@@ -94,7 +94,7 @@ func WxDepartUsers(departID int, isChild bool, token string) ([]users.UserDetail
 		isChildV = 1
 	}
 
-	dat, err := client.Get(fmt.Sprintf(departUsersURL, token, departID, isChildV), nil)
+	dat, err := wxutil.AjaxGet(fmt.Sprintf(departUsersURL, token, departID, isChildV), nil)
 	if err != nil {
 		return urs, err
 	}

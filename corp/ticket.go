@@ -11,7 +11,6 @@ import (
 	"github.com/kere/gno/libs/cache"
 	"github.com/kere/gno/libs/util"
 
-	"github.com/kere/qywx/client"
 	wxutil "github.com/kere/qywx/util"
 )
 
@@ -56,7 +55,7 @@ func (t *ticketCached) Build(args ...interface{}) (interface{}, error) {
 
 	// 获取 access_ticket
 	// 请求方式：GET（HTTPS）
-	dat, err := client.Get(fmt.Sprintf(ticketURL, token), nil)
+	dat, err := wxutil.AjaxGet(fmt.Sprintf(ticketURL, token), nil)
 	if err != nil {
 		return "", err
 	}

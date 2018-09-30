@@ -7,8 +7,8 @@ import (
 
 	"github.com/kere/gno/libs/log"
 	"github.com/kere/gno/libs/util"
-	"github.com/kere/qywx/client"
 	"github.com/kere/qywx/users"
+	wxutil "github.com/kere/qywx/util"
 )
 
 // OAuth class
@@ -37,7 +37,7 @@ func (o *OAuth) OpenAndRedirect(rw http.ResponseWriter, req *http.Request, redir
 // 请求方式：GET（HTTPS）
 func (o *OAuth) GetUserInfo(accessToken, code string) (usr UserInfo, err error) {
 	url := fmt.Sprintf(userInfoURL, accessToken, code)
-	dat, err := client.Get(url, nil)
+	dat, err := wxutil.AjaxGet(url, nil)
 	if err != nil {
 		return usr, err
 	}
@@ -77,7 +77,7 @@ func (o *OAuth) GetUserDetail(accessToken, ticket string) (usr users.UserDetail,
 	}
 
 	url := fmt.Sprintf(userDetailURL, accessToken)
-	dat, err := client.PostJSON(url, util.MapData{"user_ticket": ticket})
+	dat, err := wxutil.PostJSON(url, util.MapData{"user_ticket": ticket})
 	if err != nil {
 		return usr, err
 	}

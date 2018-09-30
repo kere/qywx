@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/libs/util"
-	"github.com/kere/qywx/client"
+	wxutil "github.com/kere/qywx/util"
 )
 
 const (
@@ -25,7 +25,7 @@ func WxCreate(name string, parentID int, order int32, token string) (int, error)
 		args["order"] = order
 	}
 
-	dat, err := client.PostJSON(fmt.Sprintf(departCreateURL, token), args)
+	dat, err := wxutil.PostJSON(fmt.Sprintf(departCreateURL, token), args)
 
 	if err != nil {
 		return -1, err
@@ -48,7 +48,7 @@ func WxUpdateName(id int, name string, token string) error {
 
 // WxUpdate department
 func WxUpdate(id int, dat util.MapData, token string) error {
-	_, err := client.PostJSON(fmt.Sprintf(departUpdateURL, token), dat)
+	_, err := wxutil.PostJSON(fmt.Sprintf(departUpdateURL, token), dat)
 
 	ClearDepart()
 	return err
@@ -60,7 +60,7 @@ func WxDelete(id int, token string) error {
 		return errors.New("删除部门ID等于0")
 	}
 
-	_, err := client.Get(fmt.Sprintf(departDelteURL, token, id), nil)
+	_, err := wxutil.AjaxGet(fmt.Sprintf(departDelteURL, token, id), nil)
 	ClearDepart()
 	return err
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/db"
-	"github.com/kere/qywx/client"
+	"github.com/kere/qywx/util"
 )
 
 // MenuGet create
@@ -15,7 +15,7 @@ func MenuGet(appid, appsecret string) (db.DataSet, error) {
 		return nil, err
 	}
 	uri := fmt.Sprintf(WxURL("MenuGet"), token)
-	dat, err := client.Get(uri, nil)
+	dat, err := util.AjaxGet(uri, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func MenuCreate(appid, appsecret string, opt interface{}) error {
 		return err
 	}
 	uri := fmt.Sprintf(WxURL("MenuCreate"), token)
-	_, err = client.PostJSON(uri, opt)
+	_, err = util.PostJSON(uri, opt)
 	return err
 }
 
@@ -51,6 +51,6 @@ func MenuDelete(appid, appsecret string) error {
 		return err
 	}
 	uri := fmt.Sprintf(WxURL("MenuDelete"), token)
-	_, err = client.Get(uri, nil)
+	_, err = util.AjaxGet(uri, nil)
 	return err
 }

@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	utilib "github.com/kere/gno/libs/util"
-	"github.com/kere/qywx/client"
 	"github.com/kere/qywx/corp"
+	"github.com/kere/qywx/util"
 )
 
 const (
@@ -37,5 +37,5 @@ func SendText(agent *corp.Agent, txt string, toUsers, toParty, toTags []string) 
 		return nil, err
 	}
 
-	return client.PostJSON(fmt.Sprintf(sendURL, token), dat)
+	return util.PostJSON(fmt.Sprintf(sendURL, token), dat)
 }

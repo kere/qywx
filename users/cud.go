@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kere/gno/libs/util"
-	"github.com/kere/qywx/client"
+	wxutil "github.com/kere/qywx/util"
 )
 
 const (
@@ -29,7 +29,7 @@ func WxCreate(dat util.MapData, token string) error {
 		return errors.New("部门不能为空")
 	}
 
-	_, err := client.PostJSON(fmt.Sprintf(userCreateURL, token), dat)
+	_, err := wxutil.PostJSON(fmt.Sprintf(userCreateURL, token), dat)
 	return err
 }
 
@@ -48,7 +48,7 @@ func WxUpdate(dat util.MapData, token string) error {
 		return errors.New("修改用户的部门不能为空")
 	}
 
-	_, err := client.PostJSON(fmt.Sprintf(userUpdateURL, token), dat)
+	_, err := wxutil.PostJSON(fmt.Sprintf(userUpdateURL, token), dat)
 	return err
 }
 
@@ -58,6 +58,6 @@ func WxDelete(userid, token string) error {
 		return errors.New("删除操作的用户的UserID不能为空")
 	}
 
-	_, err := client.Get(fmt.Sprintf(userDeleteURL, token, userid), nil)
+	_, err := wxutil.AjaxGet(fmt.Sprintf(userDeleteURL, token, userid), nil)
 	return err
 }
