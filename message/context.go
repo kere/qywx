@@ -115,7 +115,7 @@ func (c Context) Send(msg IMessage) error {
 		c.RenderXML(msg)
 	}
 
-	log.App.Debug("sendmsg:", c.MixMessage.ToUserName)
+	log.App.Debug("send to user:", c.MixMessage.ToUserName)
 	return nil
 }
 

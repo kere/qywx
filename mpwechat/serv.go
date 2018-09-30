@@ -53,13 +53,15 @@ func (srv *Serv) MessageHandle(rw http.ResponseWriter, req *http.Request, ps htt
 		return
 	}
 
-	log.App.Debug(ctx.MixMessage.GetMsgType(), ctx.MixMessage.Event, ctx.MixMessage.Content)
+	log.App.Debug(ctx.MixMessage.GetMsgType(), ctx.MixMessage.Event, ctx.MixMessage.EventKey, ctx.MixMessage.Content)
 
 	// exec replies
 	for _, exec := range srv.Execs {
 		if exec.IsExec(ctx) {
 			msg := exec.Exec(ctx, ps)
-
+			if msg.GetToUserName() == "" {
+				break
+			}
 			if err := ctx.Send(msg); err != nil {
 				log.App.Error(err)
 			}

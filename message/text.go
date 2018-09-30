@@ -19,6 +19,13 @@ func NewText(content string) Text {
 	return text
 }
 
+//NewEmpty 空文本消息
+func NewEmpty() Text {
+	text := Text{}
+	text.MsgType = MsgTypeText
+	return text
+}
+
 //NewReplyText 初始化文本消息
 func NewReplyText(content string, mixmsg MixMessage) Text {
 	text := Text{}
