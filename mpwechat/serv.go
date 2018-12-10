@@ -2,16 +2,19 @@ package mpwechat
 
 import (
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/kere/gno/libs/log"
 	"github.com/kere/qywx/message"
 )
 
-// IExec interface
-type IExec interface {
-	IsExec(message.Context) bool
-	Exec(message.Context, httprouter.Params) message.IMessage
+// IReply interface
+type IReply interface {
+	Regexp() *regexp.Regexp
+	// IsExec()bool
+	Build([][]string) (message.IMessage, error)
 }
 
 // Serv message
@@ -23,7 +26,7 @@ type Serv struct {
 
 	IsSafe bool
 
-	Execs []IExec
+	Replies []IReply
 }
 
 // NewServ func
@@ -31,13 +34,13 @@ func NewServ(appid, appsecret, token, aeskey string) *Serv {
 	return &Serv{AppID: appid, AppSecret: appsecret, Token: token, AesKey: aeskey}
 }
 
-//AddExec 添加处理模块
-func (srv *Serv) AddExec(exec IExec) {
-	srv.Execs = append(srv.Execs, exec)
+//AddReply 添加处理模块
+func (srv *Serv) AddReply(exec IReply) {
+	srv.Replies = append(srv.Replies, exec)
 }
 
-//Auth 验证
-func (srv *Serv) Auth(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+//AuthWx 验证
+func (srv *Serv) AuthWx(rw http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	s := AuthWxURL(req, srv.Token)
 	rw.Write([]byte(s))
 }
@@ -56,16 +59,40 @@ func (srv *Serv) MessageHandle(rw http.ResponseWriter, req *http.Request, ps htt
 	log.App.Debug(ctx.MixMessage.GetMsgType(), ctx.MixMessage.Event, ctx.MixMessage.EventKey, ctx.MixMessage.Content)
 
 	// exec replies
-	for _, exec := range srv.Execs {
-		if exec.IsExec(ctx) {
-			msg := exec.Exec(ctx, ps)
-			if msg.GetToUserName() == "" {
-				break
-			}
-			if err := ctx.Send(msg); err != nil {
-				log.App.Error(err)
-			}
+	for _, exec := range srv.Replies {
+		isDo, msg, err := RunReply(ctx, exec)
+		if !isDo {
+			continue
+		}
+		if err != nil {
+			log.App.Error(err)
+			ctx.Send(message.NewReplyText("写代码的程序员犯了一个错误，已经后台通知管理员解决", ctx.MixMessage))
+			break
+		}
+
+		if err := ctx.Send(msg); err != nil {
+			log.App.Error(err)
 		}
 	}
 
+}
+
+func trimStr(r rune) bool {
+	return r == ' ' || r == '\n'
+}
+
+// RunReply reply
+func RunReply(ctx message.Context, reply IReply) (bool, message.IMessage, error) {
+	msg := ctx.MixMessage
+	content := strings.TrimFunc(msg.Content, trimStr)
+
+	result := reply.Regexp().FindAllStringSubmatch(content, -1)
+	log.App.Debug("Message:", content, " Result:", result)
+
+	if len(result) == 0 || len(result[0]) < 2 {
+		return false, message.NewEmpty(), nil
+	}
+
+	m, err := reply.Build(result)
+	return true, m, err
 }
