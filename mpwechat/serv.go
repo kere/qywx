@@ -2,7 +2,6 @@ package mpwechat
 
 import (
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
@@ -12,9 +11,8 @@ import (
 
 // IReply interface
 type IReply interface {
-	Regexp() *regexp.Regexp
-	// IsExec()bool
-	Build([][]string) (message.IMessage, error)
+	Match(msg *message.Context, txt string) (bool, [][]string)
+	Build(*message.Context, [][]string) (message.IMessage, error)
 }
 
 // Serv message
@@ -60,13 +58,13 @@ func (srv *Serv) MessageHandle(rw http.ResponseWriter, req *http.Request, ps htt
 
 	// exec replies
 	for _, exec := range srv.Replies {
-		isDo, msg, err := RunReply(ctx, exec)
+		isDo, msg, err := RunReply(&ctx, exec)
 		if !isDo {
 			continue
 		}
 		if err != nil {
 			log.App.Error(err)
-			ctx.Send(message.NewReplyText("写代码的程序员犯了一个错误，已经后台通知管理员解决", ctx.MixMessage))
+			ctx.Send(message.NewReplyText("写代码的程序员犯了一个错误，已经后台通知管理员解决", &ctx.MixMessage))
 			break
 		}
 
@@ -82,17 +80,14 @@ func trimStr(r rune) bool {
 }
 
 // RunReply reply
-func RunReply(ctx message.Context, reply IReply) (bool, message.IMessage, error) {
-	msg := ctx.MixMessage
+func RunReply(ctx *message.Context, reply IReply) (bool, message.IMessage, error) {
+	msg := &ctx.MixMessage
 	content := strings.TrimFunc(msg.Content, trimStr)
-
-	result := reply.Regexp().FindAllStringSubmatch(content, -1)
-	log.App.Debug("Message:", content, " Result:", result)
-
-	if len(result) == 0 || len(result[0]) < 2 {
+	isM, result := reply.Match(ctx, content)
+	if !isM {
 		return false, message.NewEmpty(), nil
 	}
 
-	m, err := reply.Build(result)
+	m, err := reply.Build(ctx, result)
 	return true, m, err
 }

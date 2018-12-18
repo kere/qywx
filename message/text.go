@@ -27,7 +27,7 @@ func NewEmpty() Text {
 }
 
 //NewReplyText 初始化文本消息
-func NewReplyText(content string, mixmsg MixMessage) Text {
+func NewReplyText(content string, mixmsg *MixMessage) Text {
 	text := Text{}
 	text.Content = content
 	text.MsgType = MsgTypeText

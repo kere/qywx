@@ -105,7 +105,7 @@ func (srv *ServPYWX) MessageHandle(rw http.ResponseWriter, req *http.Request, ps
 
 		if err != nil {
 			log.App.Error(err)
-			ctx.Send(message.NewReplyText("写代码的程序员犯了一个错误，已经后台通知管理员解决", ctx.MixMessage))
+			ctx.Send(message.NewReplyText("写代码的程序员犯了一个错误，已经后台通知管理员解决", &ctx.MixMessage))
 			break
 		}
 
@@ -115,6 +115,6 @@ func (srv *ServPYWX) MessageHandle(rw http.ResponseWriter, req *http.Request, ps
 		isRun = true
 	}
 	if !isRun {
-		ctx.Send(message.NewReplyText("是不是名称错了？没有找到任何答案！", ctx.MixMessage))
+		ctx.Send(message.NewReplyText("是不是名称错了？没有找到任何答案！", &ctx.MixMessage))
 	}
 }
