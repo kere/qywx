@@ -94,7 +94,8 @@ func GetByName(corpName string) (*Corporation, error) {
 
 // LoadByID get corp by id
 func LoadByID(corpID int) (*Corporation, error) {
-	q := db.NewQueryBuilder(TableCorp).Cache()
+	q := db.NewQueryBuilder(TableCorp)
+	q.Cache()
 	row, err := q.Where("id=?", corpID).QueryOne()
 	if err != nil {
 		return nil, err
@@ -109,7 +110,8 @@ func LoadByID(corpID int) (*Corporation, error) {
 
 // LoadByCorpid get corp by id
 func LoadByCorpid(corpid string) (*Corporation, error) {
-	q := db.NewQueryBuilder(TableCorp).Cache()
+	q := db.NewQueryBuilder(TableCorp)
+	q.Cache()
 	row, err := q.Where("corpid=?", corpid).QueryOne()
 	if err != nil {
 		return nil, err
@@ -124,7 +126,8 @@ func LoadByCorpid(corpid string) (*Corporation, error) {
 
 // LoadByName get corp by name
 func LoadByName(corpName string) (*Corporation, error) {
-	q := db.NewQueryBuilder(TableCorp).Cache()
+	q := db.NewQueryBuilder(TableCorp)
+	q.Cache()
 	row, err := q.Where("name=?", corpName).QueryOne()
 	if err != nil {
 		return nil, err
@@ -139,7 +142,8 @@ func LoadByName(corpName string) (*Corporation, error) {
 
 // GetAgentByID get agent by id
 func GetAgentByID(agentID int) (*Agent, error) {
-	q := db.NewQueryBuilder(TableAgent).Where("id=?", agentID).Cache()
+	q := db.NewQueryBuilder(TableAgent)
+	q.Where("id=?", agentID).Cache()
 	row, err := q.QueryOne()
 	if err != nil {
 		return nil, err
@@ -174,7 +178,8 @@ func buildCorp(row db.DataRow) (*Corporation, error) {
 	c.ContactsAesKey = row.String("c_aeskey")
 	c.MainURL = row.String("main_url")
 
-	rows, _ := db.NewQueryBuilder(TableAgent).Cache().Where("corp_id=?", c.ID).Query()
+	q := db.NewQueryBuilder(TableAgent)
+	rows, _ := q.Cache().Where("corp_id=?", c.ID).Query()
 
 	c.AgentMap = make(map[string]*Agent, 0)
 	var name string
