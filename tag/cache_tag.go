@@ -34,8 +34,8 @@ func GetTags(corpid string) []Tag {
 	return v.([]Tag)
 }
 
-// GetTagByname func
-func GetTagByname(corpid, name string) Tag {
+// GetTagByName func
+func GetTagByName(corpid, name string) Tag {
 	v := cachedTags.Get(corpid)
 	if v == nil {
 		return Tag{}
