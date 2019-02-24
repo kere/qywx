@@ -144,6 +144,7 @@ func LoadByName(corpName string) (*Corporation, error) {
 func GetAgentByID(agentID int) (*Agent, error) {
 	q := db.NewQueryBuilder(TableAgent)
 	q.Where("id=?", agentID).Cache()
+
 	row, err := q.QueryOne()
 	if err != nil {
 		return nil, err
