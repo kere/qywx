@@ -50,9 +50,9 @@ const (
 	EventLocationSelect = "location_select"
 )
 
-// // ReplyContactEventCall func
-// type ReplyContactEventCall func(e ContactEvent) error
-//
+// ReplyContactEventCall func
+type ReplyContactEventCall func(e ContactEvent) error
+
 // // CommonToken 消息中通用的结构
 // type CommonToken struct {
 // 	XMLName      xml.Name `xml:"xml"`

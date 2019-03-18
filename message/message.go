@@ -22,7 +22,7 @@ type MixMessage struct {
 	URL          string  `xml:"Url"`
 
 	//事件相关
-	Event     string `xml:"Event"`
+	// Event     string `xml:"Event"`
 	EventKey  string `xml:"EventKey"`
 	Ticket    string `xml:"Ticket"`
 	Latitude  string `xml:"Latitude"`
